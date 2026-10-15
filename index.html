@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DrainWatch — Sistem Pemantauan Drainase Cerdas</title>
+  <meta name="description" content="DrainWatch: Inovasi sistem pemantauan drainase cerdas berbasis Computer Vision YOLO, IoT, dan pemodelan prediktif untuk deteksi penyumbatan serta mitigasi risiko genangan dalam mendukung ketahanan infrastruktur perkotaan berkelanjutan." />
+  <meta name="keywords" content="DrainWatch, drainase cerdas, computer vision, YOLO, IoT, smart city, flood detection, penyumbatan, genangan" />
+  <meta property="og:title" content="DrainWatch — Sistem Pemantauan Drainase Cerdas" />
+  <meta property="og:description" content="Teknologi YOLO + IoT untuk deteksi penyumbatan drainase dan mitigasi banjir real-time" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ── LOADING SCREEN ── -->
+  <div id="loading-screen">
+    <div class="loader-content">
+      <div class="loader-logo">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+          <circle cx="32" cy="32" r="30" stroke="url(#lg1)" stroke-width="2.5"/>
+          <path d="M20 32 Q32 18 44 32 Q32 46 20 32Z" fill="url(#lg2)" opacity="0.8"/>
+          <circle cx="32" cy="32" r="6" fill="#00e5ff"/>
+          <circle cx="32" cy="32" r="3" fill="#fff"/>
+          <defs>
+            <linearGradient id="lg1" x1="0" y1="0" x2="64" y2="64">
+              <stop offset="0%" stop-color="#00e5ff"/>
+              <stop offset="100%" stop-color="#7c3aed"/>
+            </linearGradient>
+            <linearGradient id="lg2" x1="0" y1="0" x2="64" y2="64">
+              <stop offset="0%" stop-color="#00e5ff"/>
+              <stop offset="100%" stop-color="#0ea5e9"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="loader-text">DRAINWATCH</div>
+      <div class="loader-bar"><div class="loader-fill"></div></div>
+      <div class="loader-status">Initializing AI Engine...</div>
+    </div>
+  </div>
+
+  <!-- ── PARTICLES BACKGROUND ── -->
+  <canvas id="particles-canvas"></canvas>
+
+  <!-- ── NAVBAR ── -->
+  <nav id="navbar">
+    <div class="nav-container">
+      <a href="#home" class="nav-logo">
+        <svg width="36" height="36" viewBox="0 0 64 64" fill="none">
+          <circle cx="32" cy="32" r="30" stroke="url(#navlg)" stroke-width="2"/>
+          <path d="M20 32 Q32 18 44 32 Q32 46 20 32Z" fill="url(#navlg2)"/>
+          <circle cx="32" cy="32" r="5" fill="#00e5ff"/>
+          <defs>
+            <linearGradient id="navlg" x1="0" y1="0" x2="64" y2="64">
+              <stop offset="0%" stop-color="#00e5ff"/><stop offset="100%" stop-color="#7c3aed"/>
+            </linearGradient>
+            <linearGradient id="navlg2" x1="0" y1="0" x2="64" y2="64">
+              <stop offset="0%" stop-color="#00e5ff"/><stop offset="100%" stop-color="#0ea5e9"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span>DRAIN<span class="accent">WATCH</span></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#home" class="nav-link active">Beranda</a></li>
+        <li><a href="#dashboard" class="nav-link">Dashboard</a></li>
+        <li><a href="#detection" class="nav-link">Deteksi YOLO</a></li>
+        <li><a href="#iot" class="nav-link">IoT Sensor</a></li>
+        <li><a href="#prediction" class="nav-link">Prediksi</a></li>
+        <li><a href="#map" class="nav-link">Peta Risiko</a></li>
+        <li><a href="#about" class="nav-link">Tentang</a></li>
+      </ul>
+      <button class="nav-alert-btn" id="alert-toggle">
+        <span class="alert-dot"></span>
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span class="alert-count">3</span>
+      </button>
+      <button class="hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <!-- Alert Panel -->
+    <div class="alert-panel" id="alert-panel">
+      <div class="alert-panel-header">
+        <h3>Notifikasi Aktif</h3>
+        <button onclick="document.getElementById('alert-panel').classList.remove('open')">X</button>
+      </div>
+      <div class="alert-item critical">
+        <span class="alert-badge">KRITIS</span>
+        <p>Titik D-07: Penyumbatan 89% terdeteksi — Jl. Gatot Subroto</p>
+        <small>2 menit lalu</small>
+      </div>
+      <div class="alert-item warning">
+        <span class="alert-badge">PERINGATAN</span>
+        <p>Sensor S-12 mendeteksi level air meningkat 15 cm/jam</p>
+        <small>8 menit lalu</small>
+      </div>
+      <div class="alert-item info">
+        <span class="alert-badge">INFO</span>
+        <p>Prediksi genangan zona B dalam 45 menit — probabilitas 74%</p>
+        <small>12 menit lalu</small>
+      </div>
+    </div>
+  </nav>
+
+  <!-- SECTION 1 — HERO -->
+  <section id="home" class="section hero-section">
+    <div class="hero-bg">
+      <div class="grid-overlay"></div>
+      <div class="rain-container" id="rain-container"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="pulse-dot"></span>
+        SISTEM AKTIF &middot; 47 SENSOR ONLINE
+      </div>
+      <h1 class="hero-title">
+        <span class="title-drain">DRAIN</span><span class="title-watch">WATCH</span>
+      </h1>
+      <p class="hero-subtitle">Inovasi Pemantauan Drainase Cerdas</p>
+      <p class="hero-desc">
+        Deteksi penyumbatan real-time berbasis <strong>Computer Vision YOLO</strong>, 
+        jaringan <strong>IoT Sensor</strong> terintegrasi, dan 
+        <strong>Pemodelan Prediktif</strong> untuk mitigasi risiko genangan 
+        demi infrastruktur perkotaan yang berkelanjutan.
+      </p>
+      <div class="hero-stats">
+        <div class="stat-chip">
+          <span class="stat-num" data-target="98.7">0</span><span>%</span>
+          <small>Akurasi Deteksi</small>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-num" data-target="47">0</span>
+          <small>Sensor Aktif</small>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-num" data-target="0.3">0</span><span>s</span>
+          <small>Response Time</small>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-num" data-target="12">0</span>
+          <small>Alert Hari Ini</small>
+        </div>
+      </div>
+      <div class="hero-cta">
+        <a href="#dashboard" class="btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" fill="currentColor"/></svg>
+          Buka Dashboard
+        </a>
+        <a href="#detection" class="btn-secondary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Lihat Deteksi YOLO
+        </a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="drain-monitor-card">
+        <div class="monitor-header">
+          <span class="monitor-title">Live Feed — Kamera #03</span>
+          <span class="live-badge">LIVE</span>
+        </div>
+        <div class="monitor-screen" id="monitor-screen">
+          <div class="yolo-frame">
+            <svg width="100%" height="100%" viewBox="0 0 400 280" class="yolo-svg">
+              <rect width="400" height="280" fill="#0a0f1a"/>
+              <rect x="80" y="40" width="240" height="200" rx="8" fill="#111827"/>
+              <g stroke="#1e3a5f" stroke-width="1.5">
+                <line x1="100" y1="60" x2="100" y2="220"/>
+                <line x1="130" y1="60" x2="130" y2="220"/>
+                <line x1="160" y1="60" x2="160" y2="220"/>
+                <line x1="190" y1="60" x2="190" y2="220"/>
+                <line x1="220" y1="60" x2="220" y2="220"/>
+                <line x1="250" y1="60" x2="250" y2="220"/>
+                <line x1="280" y1="60" x2="280" y2="220"/>
+                <line x1="310" y1="60" x2="310" y2="220"/>
+                <line x1="85" y1="80" x2="315" y2="80"/>
+                <line x1="85" y1="110" x2="315" y2="110"/>
+                <line x1="85" y1="140" x2="315" y2="140"/>
+                <line x1="85" y1="170" x2="315" y2="170"/>
+                <line x1="85" y1="200" x2="315" y2="200"/>
+              </g>
+              <ellipse cx="180" cy="150" rx="35" ry="20" fill="#4a3728" opacity="0.9"/>
+              <ellipse cx="220" cy="130" rx="22" ry="14" fill="#3d4a28" opacity="0.85"/>
+              <rect x="140" y="160" width="30" height="8" rx="4" fill="#5a6a3d" opacity="0.8"/>
+              <rect x="145" y="130" width="90" height="50" rx="3" fill="none" stroke="#00e5ff" stroke-width="2">
+                <animate attributeName="stroke-opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/>
+              </rect>
+              <rect x="195" y="115" width="52" height="35" rx="3" fill="none" stroke="#22c55e" stroke-width="2">
+                <animate attributeName="stroke-opacity" values="1;0.4;1" dur="2.5s" repeatCount="indefinite"/>
+              </rect>
+              <rect x="133" y="153" width="42" height="20" rx="3" fill="none" stroke="#f59e0b" stroke-width="2">
+                <animate attributeName="stroke-opacity" values="1;0.4;1" dur="1.8s" repeatCount="indefinite"/>
+              </rect>
+              <rect x="145" y="119" width="88" height="13" rx="2" fill="#00e5ff"/>
+              <text x="149" y="129" font-size="8" fill="#000" font-family="monospace" font-weight="bold">Blockage 94.2%</text>
+              <rect x="195" y="104" width="62" height="13" rx="2" fill="#22c55e"/>
+              <text x="199" y="114" font-size="8" fill="#000" font-family="monospace" font-weight="bold">Debris 87.5%</text>
+              <rect x="133" y="142" width="55" height="13" rx="2" fill="#f59e0b"/>
+              <text x="137" y="152" font-size="8" fill="#000" font-family="monospace" font-weight="bold">Sediment 73%</text>
+              <g stroke="#00e5ff" stroke-width="2" opacity="0.6">
+                <line x1="80" y1="40" x2="100" y2="40"/><line x1="80" y1="40" x2="80" y2="60"/>
+                <line x1="320" y1="40" x2="300" y2="40"/><line x1="320" y1="40" x2="320" y2="60"/>
+                <line x1="80" y1="240" x2="100" y2="240"/><line x1="80" y1="240" x2="80" y2="220"/>
+                <line x1="320" y1="240" x2="300" y2="240"/><line x1="320" y1="240" x2="320" y2="220"/>
+              </g>
+              <line x1="80" y1="40" x2="320" y2="40" stroke="#00e5ff" stroke-width="1.5" opacity="0.5">
+                <animate attributeName="y1" values="40;240;40" dur="3s" repeatCount="indefinite"/>
+                <animate attributeName="y2" values="40;240;40" dur="3s" repeatCount="indefinite"/>
+              </line>
+              <text x="90" y="56" font-size="7" fill="#00e5ff" font-family="monospace">YOLOv8n x 30fps x 640x480</text>
+              <text x="200" y="56" font-size="7" fill="#f59e0b" font-family="monospace">BLOCKAGE DETECTED</text>
+              <text x="90" y="232" font-size="7" fill="#64748b" font-family="monospace">CAM-03 x Jl. Gatot Subroto KM.4</text>
+              <text x="270" y="232" font-size="7" fill="#64748b" font-family="monospace">12:54:32</text>
+            </svg>
+          </div>
+        </div>
+        <div class="monitor-footer">
+          <div class="mf-stat danger" id="hero-mf-stat"><span>&#9679;</span> <span id="hero-blockage-txt">Penyumbatan: 89%</span></div>
+          <div class="mf-stat ok"><span>&#9679;</span> AI: Online (30 FPS)</div>
+          <div class="mf-stat warning"><span>&#9679;</span> Risiko: Tinggi</div>
+        </div>
+      </div>
+    </div>
+    <a href="#dashboard" class="scroll-indicator">
+      <span>Scroll Down</span>
+      <div class="scroll-arrow">&#8595;</div>
+    </a>
+  </section>
+
+  <!-- SECTION 2 — DASHBOARD -->
+  <section id="dashboard" class="section dashboard-section">
+    <div class="section-header">
+      <div class="section-tag">MONITORING CENTER</div>
+      <h2>Dashboard <span class="gradient-text">Real-Time</span></h2>
+      <p>Pantau seluruh jaringan drainase kota secara terpusat dengan data langsung dari 47 titik sensor aktif</p>
+    </div>
+
+    <!-- ── REAL-TIME SIMULATION CONTROL BAR ── -->
+    <div class="sim-control-bar">
+      <div class="sim-status-group">
+        <div class="sim-live-indicator">
+          <span class="radar-ping"></span>
+          <span>LIVE STREAM TELEMETRY</span>
+        </div>
+        <div class="sim-clock-display" id="realtime-clock">--:--:-- WIB</div>
+      </div>
+
+      <div class="sim-actions-group">
+        <div class="speed-control-box">
+          <span class="speed-label">Kecepatan:</span>
+          <button class="sim-speed-btn" id="speed-pause" onclick="setSimSpeed(0)">Jeda</button>
+          <button class="sim-speed-btn active" id="speed-1x" onclick="setSimSpeed(1)">1x</button>
+          <button class="sim-speed-btn" id="speed-2x" onclick="setSimSpeed(2)">2x</button>
+          <button class="sim-speed-btn" id="speed-5x" onclick="setSimSpeed(5)">5x</button>
+        </div>
+
+        <div class="scenario-buttons">
+          <button class="scenario-btn rain-storm" id="btn-scenario-rain" onclick="triggerScenario('storm')">
+            <span>🌧️</span> Simulasi Badai Hujan
+          </button>
+          <button class="scenario-btn clean-drain" id="btn-scenario-clean" onclick="triggerScenario('clean')">
+            <span>🚜</span> Pembersihan Sedimen
+          </button>
+          <button class="scenario-btn" id="btn-scenario-pump" onclick="toggleAutoPump()">
+            <span>🚰</span> <span id="pump-btn-text">Pompa Otomatis: SIAGA</span>
+          </button>
+          <button class="scenario-btn sound-toggle" id="btn-sound-toggle" onclick="toggleAudioAlerts()">
+            <span id="sound-icon">🔔</span> <span id="sound-label">Audio On</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="overview-grid">
+      <div class="overview-card glow-cyan">
+        <div class="ov-icon cyan">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="ov-data">
+          <div class="ov-num" id="ov1">47</div>
+          <div class="ov-label">Sensor Aktif</div>
+        </div>
+        <div class="ov-change up">+2 hari ini</div>
+      </div>
+      <div class="overview-card glow-red">
+        <div class="ov-icon red">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="ov-data">
+          <div class="ov-num danger-text" id="ov2">3</div>
+          <div class="ov-label">Penyumbatan Kritis</div>
+        </div>
+        <div class="ov-change">Perlu penanganan</div>
+      </div>
+      <div class="overview-card glow-yellow">
+        <div class="ov-icon yellow">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 3v1m0 16v1M4.22 4.22l.707.707m12.02 12.02l.707.707M1 12h1m18 0h1M4.22 19.78l.707-.707M18.95 5.05l-.707.707" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/></svg>
+        </div>
+        <div class="ov-data">
+          <div class="ov-num warning-text" id="ov3">74%</div>
+          <div class="ov-label">Prob. Genangan</div>
+        </div>
+        <div class="ov-change">Zona B — 45 menit</div>
+      </div>
+      <div class="overview-card glow-green">
+        <div class="ov-icon green">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="ov-data">
+          <div class="ov-num ok-text" id="ov4">98.7%</div>
+          <div class="ov-label">Akurasi AI</div>
+        </div>
+        <div class="ov-change up">YOLOv8 Active</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Level Air Real-Time</h3>
+          <div class="chart-legend">
+            <span><i class="dot cyan"></i>Zona A</span>
+            <span><i class="dot yellow"></i>Zona B</span>
+            <span><i class="dot red"></i>Zona C</span>
+          </div>
+        </div>
+        <canvas id="waterLevelChart" width="500" height="220"></canvas>
+      </div>
+      <div class="chart-card small-card">
+        <div class="chart-header">
+          <h3>Status Drainase</h3>
+        </div>
+        <canvas id="blockageChart" width="280" height="220"></canvas>
+        <div class="donut-legend">
+          <div class="dl-item"><i class="dot green"></i><span>Normal (38)</span></div>
+          <div class="dl-item"><i class="dot yellow"></i><span>Waspada (6)</span></div>
+          <div class="dl-item"><i class="dot red"></i><span>Kritis (3)</span></div>
+        </div>
+      </div>
+      <div class="chart-card small-card">
+        <div class="chart-header">
+          <h3>Debit Aliran (m3/jam)</h3>
+        </div>
+        <canvas id="flowChart" width="280" height="220"></canvas>
+      </div>
+    </div>
+
+    <div class="sensor-table-card">
+      <div class="table-header">
+        <h3>Status Sensor Aktif</h3>
+        <div class="table-controls">
+          <input type="text" placeholder="Cari sensor..." class="search-input" id="sensorSearch" />
+          <select class="filter-select" id="statusFilter">
+            <option value="">Semua Status</option>
+            <option value="normal">Normal</option>
+            <option value="warning">Peringatan</option>
+            <option value="critical">Kritis</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table class="sensor-table" id="sensorTable">
+          <thead>
+            <tr>
+              <th>ID Sensor</th>
+              <th>Lokasi</th>
+              <th>Level Air</th>
+              <th>Debit (m3/h)</th>
+              <th>Penyumbatan</th>
+              <th>Status</th>
+              <th>Update</th>
+            </tr>
+          </thead>
+          <tbody id="sensorTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── LIVE AUDIT & EVENT LOG TERMINAL ── -->
+    <div class="live-event-terminal">
+      <div class="terminal-header">
+        <div class="terminal-title">
+          <span class="terminal-title-dot"></span>
+          <span>LIVE TELEMETRY &amp; AI INFERENCE AUDIT STREAM</span>
+        </div>
+        <div class="terminal-actions">
+          <button class="terminal-btn" onclick="clearEventLogs()">Bersihkan</button>
+          <button class="terminal-btn" onclick="pauseEventLogs()" id="pause-logs-btn">Auto-Scroll: ON</button>
+        </div>
+      </div>
+      <div class="terminal-feed" id="eventLogFeed">
+        <!-- Live event logs will be dynamically inserted here -->
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3 — YOLO DETECTION -->
+  <section id="detection" class="section detection-section">
+    <div class="section-header">
+      <div class="section-tag">COMPUTER VISION</div>
+      <h2>Deteksi <span class="gradient-text">YOLO</span> Real-Time</h2>
+      <p>Model YOLOv8 terlatih khusus untuk mendeteksi jenis penyumbatan drainase dengan presisi tinggi</p>
+    </div>
+
+    <div class="detection-grid">
+      <div class="camera-feeds">
+        <h3 class="feeds-title">Live Camera Feeds</h3>
+        <div class="feeds-grid">
+          <div class="feed-card active" id="feed-1" onclick="selectFeed(1)">
+            <div class="feed-screen"><div class="feed-visual cam1"></div></div>
+            <div class="feed-info"><span>CAM-01</span><span class="feed-status critical">Kritis</span></div>
+            <small>Jl. Sudirman KM.2</small>
+          </div>
+          <div class="feed-card" id="feed-2" onclick="selectFeed(2)">
+            <div class="feed-screen"><div class="feed-visual cam2"></div></div>
+            <div class="feed-info"><span>CAM-02</span><span class="feed-status warning">Waspada</span></div>
+            <small>Jl. MH Thamrin</small>
+          </div>
+          <div class="feed-card" id="feed-3" onclick="selectFeed(3)">
+            <div class="feed-screen"><div class="feed-visual cam3"></div></div>
+            <div class="feed-info"><span>CAM-03</span><span class="feed-status critical">Kritis</span></div>
+            <small>Jl. Gatot Subroto</small>
+          </div>
+          <div class="feed-card" id="feed-4" onclick="selectFeed(4)">
+            <div class="feed-screen"><div class="feed-visual cam4"></div></div>
+            <div class="feed-info"><span>CAM-04</span><span class="feed-status ok">Normal</span></div>
+            <small>Jl. Kuningan Raya</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="detection-main">
+        <div class="detection-screen">
+          <div class="detection-feed-header">
+            <span id="active-cam-label">CAM-01 x Jl. Sudirman KM.2</span>
+            <div class="detection-controls">
+              <span class="live-badge pulse">LIVE</span>
+            </div>
+          </div>
+          <div class="yolo-feed-wrapper" id="yolo-feed-wrapper">
+            <video id="webcam-video" autoplay playsinline muted></video>
+            <canvas id="yolo-live-canvas"></canvas>
+            
+            <div class="yolo-hud-overlay">
+              <div class="hud-telemetry">
+                <span><span class="hud-tag">FPS:</span> <span class="hud-val" id="yolo-fps">30.1</span></span>
+                <span><span class="hud-tag">LATENCY:</span> <span class="hud-val" id="yolo-latency">15.4ms</span></span>
+                <span><span class="hud-tag">OBJEK:</span> <span class="hud-val" id="yolo-obj-count">4</span></span>
+              </div>
+              <div class="hud-status-badge" id="hud-cam-status">BLOCKAGE DETECTED</div>
+            </div>
+          </div>
+
+          <!-- ── ADVANCED YOLO TOOLBAR ── -->
+          <div class="yolo-advanced-toolbar">
+            <div class="yolo-tools-left">
+              <button class="yolo-tool-btn" id="btn-webcam" onclick="toggleWebcam()">
+                <span>📷</span> <span id="webcam-btn-text">Gunakan Webcam Lokal</span>
+              </button>
+              <label class="yolo-tool-btn" style="cursor:pointer">
+                <span>📁</span> <span>Upload Media</span>
+                <input type="file" id="media-upload-input" accept="image/*,video/*" style="display:none" onchange="handleMediaUpload(event)">
+              </label>
+              <div class="confidence-slider-group">
+                <span>Conf Min:</span>
+                <input type="range" id="conf-slider" min="30" max="95" value="65" oninput="updateConfThreshold(this.value)">
+                <span id="conf-val-label">65%</span>
+              </div>
+            </div>
+            <div class="class-filter-pills">
+              <span class="filter-pill active" data-class="all" onclick="filterDetectionClass('all', this)">Semua</span>
+              <span class="filter-pill active" data-class="plastic" onclick="filterDetectionClass('plastic', this)">Plastik</span>
+              <span class="filter-pill active" data-class="debris" onclick="filterDetectionClass('debris', this)">Debris</span>
+              <span class="filter-pill active" data-class="sediment" onclick="filterDetectionClass('sediment', this)">Sedimen</span>
+              <span class="filter-pill active" data-class="blockage" onclick="filterDetectionClass('blockage', this)">Penyumbatan</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detection-results">
+          <h4>Objek Terdeteksi</h4>
+          <div class="detection-list" id="detection-list">
+            <div class="det-item critical-det">
+              <div class="det-color" style="background:#ef4444"></div>
+              <div class="det-info">
+                <span class="det-class">Penyumbatan Parah</span>
+                <div class="det-bar"><div class="det-fill" style="width:94.2%;background:#ef4444"></div></div>
+              </div>
+              <span class="det-conf">94.2%</span>
+            </div>
+            <div class="det-item">
+              <div class="det-color" style="background:#a855f7"></div>
+              <div class="det-info">
+                <span class="det-class">Sampah Plastik</span>
+                <div class="det-bar"><div class="det-fill" style="width:81.3%;background:#a855f7"></div></div>
+              </div>
+              <span class="det-conf">81.3%</span>
+            </div>
+            <div class="det-item">
+              <div class="det-color" style="background:#22c55e"></div>
+              <div class="det-info">
+                <span class="det-class">Debris Organik</span>
+                <div class="det-bar"><div class="det-fill" style="width:87.5%;background:#22c55e"></div></div>
+              </div>
+              <span class="det-conf">87.5%</span>
+            </div>
+            <div class="det-item">
+              <div class="det-color" style="background:#f59e0b"></div>
+              <div class="det-info">
+                <span class="det-class">Sedimentasi</span>
+                <div class="det-bar"><div class="det-fill" style="width:73%;background:#f59e0b"></div></div>
+              </div>
+              <span class="det-conf">73.0%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="model-info-panel">
+        <h3>Model YOLO Info</h3>
+        <div class="model-stats">
+          <div class="ms-item"><span class="ms-label">Model</span><span class="ms-val accent-text">YOLOv8n-DrainNet</span></div>
+          <div class="ms-item"><span class="ms-label">Dataset</span><span class="ms-val">12,450 gambar</span></div>
+          <div class="ms-item"><span class="ms-label">Kelas Deteksi</span><span class="ms-val">8 kelas</span></div>
+          <div class="ms-item"><span class="ms-label">mAP@50</span><span class="ms-val ok-text">0.947</span></div>
+          <div class="ms-item"><span class="ms-label">Precision</span><span class="ms-val ok-text">0.923</span></div>
+          <div class="ms-item"><span class="ms-label">Recall</span><span class="ms-val ok-text">0.918</span></div>
+          <div class="ms-item"><span class="ms-label">FPS</span><span class="ms-val">30 fps</span></div>
+          <div class="ms-item"><span class="ms-label">Hardware</span><span class="ms-val">NVIDIA Jetson</span></div>
+        </div>
+        <div class="class-list">
+          <h4>Kelas Deteksi</h4>
+          <div class="class-items">
+            <span class="class-tag c-red">Penyumbatan Parah</span>
+            <span class="class-tag c-orange">Penyumbatan Sedang</span>
+            <span class="class-tag c-yellow">Sampah Plastik</span>
+            <span class="class-tag c-green">Debris Organik</span>
+            <span class="class-tag c-blue">Sedimentasi</span>
+            <span class="class-tag c-purple">Minyak/Oli</span>
+            <span class="class-tag c-cyan">Air Jernih</span>
+            <span class="class-tag c-gray">Air Kotor</span>
+          </div>
+        </div>
+        <div class="confusion-matrix-mini">
+          <h4>Performa Model</h4>
+          <canvas id="perfChart" width="240" height="160"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4 — IoT SENSORS -->
+  <section id="iot" class="section iot-section">
+    <div class="section-header">
+      <div class="section-tag">JARINGAN IoT</div>
+      <h2>Sensor <span class="gradient-text">IoT</span> Terintegrasi</h2>
+      <p>Jaringan sensor pintar yang mengukur level air, debit aliran, kualitas air, dan parameter lingkungan secara real-time</p>
+    </div>
+    <div class="iot-grid">
+      <div class="iot-network-card">
+        <h3>Topologi Jaringan Sensor</h3>
+        <div class="network-visual">
+          <svg width="100%" viewBox="0 0 500 380" class="network-svg">
+            <defs>
+              <pattern id="smallGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1e3a5f" stroke-width="0.5"/>
+              </pattern>
+            </defs>
+            <rect width="500" height="380" fill="#060d1a"/>
+            <rect width="500" height="380" fill="url(#smallGrid)"/>
+            <g stroke="#00e5ff" stroke-width="1" opacity="0.3">
+              <line x1="250" y1="190" x2="80" y2="80"/>
+              <line x1="250" y1="190" x2="420" y2="80"/>
+              <line x1="250" y1="190" x2="80" y2="300"/>
+              <line x1="250" y1="190" x2="420" y2="300"/>
+              <line x1="250" y1="190" x2="150" y2="190"/>
+              <line x1="250" y1="190" x2="350" y2="190"/>
+              <line x1="250" y1="190" x2="250" y2="80"/>
+              <line x1="250" y1="190" x2="250" y2="300"/>
+            </g>
+            <circle r="3" fill="#00e5ff"><animateMotion dur="2s" repeatCount="indefinite" path="M 250 190 L 80 80"/></circle>
+            <circle r="3" fill="#00e5ff"><animateMotion dur="2.5s" repeatCount="indefinite" path="M 250 190 L 420 300"/></circle>
+            <circle r="3" fill="#f59e0b"><animateMotion dur="1.8s" repeatCount="indefinite" path="M 250 190 L 80 300"/></circle>
+            <circle r="3" fill="#22c55e"><animateMotion dur="3s" repeatCount="indefinite" path="M 250 190 L 420 80"/></circle>
+            <circle cx="250" cy="190" r="30" fill="url(#hubGrad)" stroke="#00e5ff" stroke-width="2"/>
+            <circle cx="250" cy="190" r="20" fill="#00e5ff" opacity="0.2">
+              <animate attributeName="r" values="20;35;20" dur="2s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.2;0;0.2" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <text x="250" y="186" text-anchor="middle" font-size="8" fill="white" font-family="monospace">CENTRAL</text>
+            <text x="250" y="197" text-anchor="middle" font-size="8" fill="white" font-family="monospace">HUB</text>
+            <circle cx="80" cy="80" r="18" fill="#1a0a0a" stroke="#ef4444" stroke-width="2"/>
+            <circle cx="80" cy="80" r="12" fill="#ef444420"><animate attributeName="r" values="12;20;12" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0;0.5" dur="1.5s" repeatCount="indefinite"/></circle>
+            <text x="80" y="77" text-anchor="middle" font-size="7" fill="#ef4444" font-family="monospace">S-01</text>
+            <text x="80" y="86" text-anchor="middle" font-size="6" fill="#ef4444" font-family="monospace">KRITIS</text>
+            <text x="80" y="107" text-anchor="middle" font-size="8" fill="#94a3b8">Sudirman</text>
+            <circle cx="420" cy="80" r="18" fill="#1a140a" stroke="#f59e0b" stroke-width="2"/>
+            <circle cx="420" cy="80" r="12" fill="#f59e0b20"><animate attributeName="r" values="12;20;12" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.4;0;0.4" dur="2s" repeatCount="indefinite"/></circle>
+            <text x="420" y="77" text-anchor="middle" font-size="7" fill="#f59e0b" font-family="monospace">S-02</text>
+            <text x="420" y="86" text-anchor="middle" font-size="6" fill="#f59e0b" font-family="monospace">WASPADA</text>
+            <text x="420" y="107" text-anchor="middle" font-size="8" fill="#94a3b8">Thamrin</text>
+            <circle cx="150" cy="190" r="18" fill="#0a1a0a" stroke="#22c55e" stroke-width="2"/>
+            <text x="150" y="187" text-anchor="middle" font-size="7" fill="#22c55e" font-family="monospace">S-03</text>
+            <text x="150" y="196" text-anchor="middle" font-size="6" fill="#22c55e" font-family="monospace">NORMAL</text>
+            <text x="150" y="217" text-anchor="middle" font-size="8" fill="#94a3b8">Kuningan</text>
+            <circle cx="350" cy="190" r="18" fill="#0a1a0a" stroke="#22c55e" stroke-width="2"/>
+            <text x="350" y="187" text-anchor="middle" font-size="7" fill="#22c55e" font-family="monospace">S-04</text>
+            <text x="350" y="196" text-anchor="middle" font-size="6" fill="#22c55e" font-family="monospace">NORMAL</text>
+            <text x="350" y="217" text-anchor="middle" font-size="8" fill="#94a3b8">Rasuna</text>
+            <circle cx="80" cy="300" r="18" fill="#1a0a0a" stroke="#ef4444" stroke-width="2"/>
+            <circle cx="80" cy="300" r="12" fill="#ef444420"><animate attributeName="r" values="12;20;12" dur="1.3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0;0.5" dur="1.3s" repeatCount="indefinite"/></circle>
+            <text x="80" y="297" text-anchor="middle" font-size="7" fill="#ef4444" font-family="monospace">S-07</text>
+            <text x="80" y="306" text-anchor="middle" font-size="6" fill="#ef4444" font-family="monospace">KRITIS</text>
+            <text x="80" y="327" text-anchor="middle" font-size="8" fill="#94a3b8">Gatot Sub.</text>
+            <circle cx="420" cy="300" r="18" fill="#0a1a0a" stroke="#22c55e" stroke-width="2"/>
+            <text x="420" y="297" text-anchor="middle" font-size="7" fill="#22c55e" font-family="monospace">S-12</text>
+            <text x="420" y="306" text-anchor="middle" font-size="6" fill="#22c55e" font-family="monospace">NORMAL</text>
+            <text x="420" y="327" text-anchor="middle" font-size="8" fill="#94a3b8">Casablanca</text>
+            <circle cx="250" cy="80" r="18" fill="#0a1a0a" stroke="#22c55e" stroke-width="2"/>
+            <text x="250" y="77" text-anchor="middle" font-size="7" fill="#22c55e" font-family="monospace">S-09</text>
+            <text x="250" y="86" text-anchor="middle" font-size="6" fill="#22c55e" font-family="monospace">NORMAL</text>
+            <text x="250" y="107" text-anchor="middle" font-size="8" fill="#94a3b8">Semanggi</text>
+            <circle cx="250" cy="300" r="18" fill="#1a140a" stroke="#f59e0b" stroke-width="2"/>
+            <text x="250" y="297" text-anchor="middle" font-size="7" fill="#f59e0b" font-family="monospace">S-14</text>
+            <text x="250" y="306" text-anchor="middle" font-size="6" fill="#f59e0b" font-family="monospace">WASPADA</text>
+            <text x="250" y="327" text-anchor="middle" font-size="8" fill="#94a3b8">Pancoran</text>
+            <defs>
+              <radialGradient id="hubGrad" cx="50%" cy="50%">
+                <stop offset="0%" stop-color="#00e5ff" stop-opacity="0.4"/>
+                <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0.1"/>
+              </radialGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+
+      <div class="sensor-details">
+        <div class="sensor-active-banner">
+          <span>📡 Sensor Terpilih: <strong id="active-sensor-name" style="color:var(--cyan)">S-01 · Jl. Sudirman KM.2</strong></span>
+          <span style="font-size:11px;color:var(--text-muted)" id="active-sensor-last-pkt">Paket LoRaWAN: Baru saja</span>
+        </div>
+        <div class="sensor-detail-card" id="card-temp"><div class="sd-icon">🌡️</div><div class="sd-content"><div class="sd-title">Suhu Air</div><div class="sd-value" id="val-temp">28.4°C</div><div class="sd-gauge"><div class="sd-fill" id="gauge-temp" style="width:57%"></div></div><div class="sd-sub">Normal: 20-35°C</div></div></div>
+        <div class="sensor-detail-card" id="card-ph"><div class="sd-icon">💧</div><div class="sd-content"><div class="sd-title">pH Air</div><div class="sd-value" id="val-ph">6.8</div><div class="sd-gauge"><div class="sd-fill" id="gauge-ph" style="width:68%;background:linear-gradient(to right,#22c55e,#86efac)"></div></div><div class="sd-sub">Normal: 6.5-8.5</div></div></div>
+        <div class="sensor-detail-card critical-sd" id="card-level"><div class="sd-icon">📊</div><div class="sd-content"><div class="sd-title">Level Air (Ultrasonik)</div><div class="sd-value warning-text" id="val-level">87 cm</div><div class="sd-gauge"><div class="sd-fill" id="gauge-level" style="width:87%;background:linear-gradient(to right,#ef4444,#fca5a5)"></div></div><div class="sd-sub">Batas Kritis: 90 cm</div></div></div>
+        <div class="sensor-detail-card" id="card-flow"><div class="sd-icon">🌊</div><div class="sd-content"><div class="sd-title">Debit Aliran</div><div class="sd-value" id="val-flow">2.3 m3/h</div><div class="sd-gauge"><div class="sd-fill" id="gauge-flow" style="width:30%;background:linear-gradient(to right,#0ea5e9,#7dd3fc)"></div></div><div class="sd-sub">Kapasitas: 8 m3/h</div></div></div>
+        <div class="sensor-detail-card" id="card-turb"><div class="sd-icon">🔬</div><div class="sd-content"><div class="sd-title">Turbiditas</div><div class="sd-value" id="val-turb">145 NTU</div><div class="sd-gauge"><div class="sd-fill" id="gauge-turb" style="width:58%;background:linear-gradient(to right,#f59e0b,#fde68a)"></div></div><div class="sd-sub">Batas: 250 NTU</div></div></div>
+        <div class="sensor-detail-card" id="card-rain"><div class="sd-icon">🌧️</div><div class="sd-content"><div class="sd-title">Curah Hujan</div><div class="sd-value" id="val-rain">32 mm/h</div><div class="sd-gauge"><div class="sd-fill" id="gauge-rain" style="width:64%;background:linear-gradient(to right,#818cf8,#c4b5fd)"></div></div><div class="sd-sub">Tinggi: >50 mm/h</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 5 — PREDICTIVE MODEL -->
+  <section id="prediction" class="section prediction-section">
+    <div class="section-header">
+      <div class="section-tag">PEMODELAN PREDIKTIF</div>
+      <h2>Prediksi <span class="gradient-text">Risiko</span> Genangan</h2>
+      <p>Model machine learning LSTM + ensemble menganalisis data historis dan real-time untuk memprediksi potensi banjir 72 jam ke depan</p>
+    </div>
+    <div class="prediction-layout">
+      <div class="prediction-main-card">
+        <div class="pred-header">
+          <h3>Prediksi 72 Jam ke Depan</h3>
+          <div class="pred-controls">
+            <button class="pred-btn active" onclick="setPredWindow(24)">24 Jam</button>
+            <button class="pred-btn" onclick="setPredWindow(48)">48 Jam</button>
+            <button class="pred-btn" onclick="setPredWindow(72)">72 Jam</button>
+          </div>
+        </div>
+        <canvas id="predictionChart" width="700" height="260"></canvas>
+        <div class="pred-legend">
+          <span><i class="dot cyan"></i>Prediksi Level Air</span>
+          <span><i class="dot red"></i>Ambang Bahaya</span>
+          <span><i class="dot purple"></i>Konfiden. 95%</span>
+        </div>
+      </div>
+
+      <div class="risk-cards">
+        <h3>Tingkat Risiko per Zona</h3>
+        <div class="risk-card r-critical">
+          <div class="risk-zone">Zona A — Sudirman</div>
+          <div class="risk-level">KRITIS</div>
+          <div class="risk-prob"><div class="risk-bar"><div class="risk-fill" style="width:89%"></div></div><span>89%</span></div>
+          <div class="risk-time">Est. banjir: ~20 mnt</div>
+        </div>
+        <div class="risk-card r-high">
+          <div class="risk-zone">Zona B — Kuningan</div>
+          <div class="risk-level high">TINGGI</div>
+          <div class="risk-prob"><div class="risk-bar"><div class="risk-fill" style="width:74%;background:linear-gradient(to right,#f59e0b,#fbbf24)"></div></div><span>74%</span></div>
+          <div class="risk-time">Est. banjir: ~45 mnt</div>
+        </div>
+        <div class="risk-card r-medium">
+          <div class="risk-zone">Zona C — Thamrin</div>
+          <div class="risk-level medium">SEDANG</div>
+          <div class="risk-prob"><div class="risk-bar"><div class="risk-fill" style="width:42%;background:linear-gradient(to right,#eab308,#facc15)"></div></div><span>42%</span></div>
+          <div class="risk-time">Est. banjir: ~2 jam</div>
+        </div>
+        <div class="risk-card r-low">
+          <div class="risk-zone">Zona D — Casablanca</div>
+          <div class="risk-level low">RENDAH</div>
+          <div class="risk-prob"><div class="risk-bar"><div class="risk-fill" style="width:18%;background:linear-gradient(to right,#22c55e,#4ade80)"></div></div><span>18%</span></div>
+          <div class="risk-time">Tidak berisiko</div>
+        </div>
+      </div>
+
+      <div class="model-tech-card">
+        <h3>Teknologi Prediksi</h3>
+        <div class="tech-stack">
+          <div class="tech-item"><div class="tech-icon">&#129504;</div><div class="tech-content"><div class="tech-name">LSTM Neural Network</div><div class="tech-desc">Analisis temporal series data sensor untuk prediksi level air</div></div></div>
+          <div class="tech-item"><div class="tech-icon">&#127794;</div><div class="tech-content"><div class="tech-name">Random Forest Ensemble</div><div class="tech-desc">Klasifikasi risiko multi-variabel dari data cuaca, topografi &amp; historis</div></div></div>
+          <div class="tech-item"><div class="tech-icon">&#127760;</div><div class="tech-content"><div class="tech-name">Hydrological Model</div><div class="tech-desc">Simulasi aliran air berbasis DEM dan data curah hujan BMKG</div></div></div>
+          <div class="tech-item"><div class="tech-icon">&#9889;</div><div class="tech-content"><div class="tech-name">Real-time Inference</div><div class="tech-desc">Update prediksi setiap 5 menit dengan data sensor terbaru</div></div></div>
+        </div>
+        <div class="model-accuracy">
+          <div class="ma-item"><span>RMSE</span><span class="ok-text">3.2 cm</span></div>
+          <div class="ma-item"><span>MAE</span><span class="ok-text">2.1 cm</span></div>
+          <div class="ma-item"><span>R2</span><span class="ok-text">0.964</span></div>
+          <div class="ma-item"><span>Lead Time</span><span class="ok-text">72 jam</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 6 — RISK MAP -->
+  <section id="map" class="section map-section">
+    <div class="section-header">
+      <div class="section-tag">PETA RISIKO</div>
+      <h2>Peta <span class="gradient-text">Risiko</span> Genangan Kota</h2>
+      <p>Visualisasi spasial zona risiko banjir dan posisi sensor aktif secara real-time</p>
+    </div>
+    <div class="map-layout">
+      <div class="map-card">
+        <div class="map-controls">
+          <button class="map-btn active" onclick="setMapLayer('risk')">Risiko</button>
+          <button class="map-btn" onclick="setMapLayer('sensors')">Sensor</button>
+          <button class="map-btn" onclick="setMapLayer('flow')">Aliran</button>
+          <button class="map-btn" onclick="setMapLayer('rain')">Hujan</button>
+        </div>
+        <div class="map-container">
+          <svg width="100%" viewBox="0 0 700 500" class="city-map" id="city-map">
+            <defs>
+              <radialGradient id="zoneA" cx="30%" cy="25%">
+                <stop offset="0%" stop-color="#ef4444" stop-opacity="0.7"/>
+                <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="zoneB" cx="60%" cy="50%">
+                <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.6"/>
+                <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="zoneC" cx="70%" cy="30%">
+                <stop offset="0%" stop-color="#eab308" stop-opacity="0.5"/>
+                <stop offset="100%" stop-color="#eab308" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="zoneD" cx="80%" cy="75%">
+                <stop offset="0%" stop-color="#22c55e" stop-opacity="0.4"/>
+                <stop offset="100%" stop-color="#22c55e" stop-opacity="0"/>
+              </radialGradient>
+              <pattern id="mapGrid" width="25" height="25" patternUnits="userSpaceOnUse">
+                <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#1e3a5f" stroke-width="0.5"/>
+              </pattern>
+            </defs>
+            <rect width="700" height="500" fill="#060d1a"/>
+            <rect width="700" height="500" fill="url(#mapGrid)"/>
+            <g stroke="#1e3a5f" stroke-width="8" stroke-linecap="round">
+              <line x1="0" y1="200" x2="700" y2="200"/>
+              <line x1="0" y1="350" x2="700" y2="350"/>
+              <line x1="200" y1="0" x2="200" y2="500"/>
+              <line x1="450" y1="0" x2="450" y2="500"/>
+              <line x1="0" y1="120" x2="700" y2="120"/>
+              <line x1="320" y1="0" x2="320" y2="500"/>
+            </g>
+            <g font-size="9" fill="#2d4a7a" font-family="sans-serif" text-anchor="middle">
+              <text x="350" y="195">Jl. Sudirman</text>
+              <text x="350" y="345">Jl. Gatot Subroto</text>
+              <text x="350" y="115">Jl. MH Thamrin</text>
+            </g>
+            <rect x="0" y="0" width="340" height="280" fill="url(#zoneA)"/>
+            <rect x="280" y="150" width="300" height="280" fill="url(#zoneB)"/>
+            <rect x="380" y="0" width="320" height="250" fill="url(#zoneC)"/>
+            <rect x="500" y="300" width="200" height="200" fill="url(#zoneD)"/>
+            <g class="map-marker" onclick="openMapSensorModal('S-01')">
+              <circle cx="150" cy="170" r="10" fill="#ef4444" stroke="white" stroke-width="2"><animate attributeName="r" values="10;16;10" dur="1.5s" repeatCount="indefinite"/></circle>
+              <text x="150" y="174" text-anchor="middle" font-size="8" fill="white" font-weight="bold">S-01</text>
+            </g>
+            <g class="map-marker" onclick="openMapSensorModal('S-07')">
+              <circle cx="150" cy="330" r="10" fill="#ef4444" stroke="white" stroke-width="2"><animate attributeName="r" values="10;16;10" dur="1.3s" repeatCount="indefinite"/></circle>
+              <text x="150" y="334" text-anchor="middle" font-size="8" fill="white" font-weight="bold">S-07</text>
+            </g>
+            <g class="map-marker" onclick="openMapSensorModal('S-02')">
+              <circle cx="400" cy="100" r="9" fill="#f59e0b" stroke="white" stroke-width="2"/>
+              <text x="400" y="104" text-anchor="middle" font-size="8" fill="white" font-weight="bold">S-02</text>
+            </g>
+            <g class="map-marker" onclick="openMapSensorModal('S-14')">
+              <circle cx="320" cy="280" r="9" fill="#f59e0b" stroke="white" stroke-width="2"/>
+              <text x="320" y="284" text-anchor="middle" font-size="8" fill="white" font-weight="bold">S-14</text>
+            </g>
+            <g class="map-marker" onclick="openMapSensorModal('S-03')">
+              <circle cx="200" cy="200" r="8" fill="#22c55e" stroke="white" stroke-width="1.5"/>
+              <text x="200" y="204" text-anchor="middle" font-size="7" fill="white">S-03</text>
+            </g>
+            <g class="map-marker" onclick="openMapSensorModal('S-04')">
+              <circle cx="450" cy="200" r="8" fill="#22c55e" stroke="white" stroke-width="1.5"/>
+              <text x="450" y="204" text-anchor="middle" font-size="7" fill="white">S-04</text>
+            </g>
+            <g class="map-marker" onclick="openMapSensorModal('S-09')">
+              <circle cx="320" cy="120" r="8" fill="#22c55e" stroke="white" stroke-width="1.5"/>
+              <text x="320" y="124" text-anchor="middle" font-size="7" fill="white">S-09</text>
+            </g>
+            <g class="map-marker" onclick="openMapSensorModal('S-12')">
+              <circle cx="580" cy="380" r="8" fill="#22c55e" stroke="white" stroke-width="1.5"/>
+              <text x="580" y="384" text-anchor="middle" font-size="7" fill="white">S-12</text>
+            </g>
+            <rect x="10" y="420" width="200" height="72" rx="6" fill="#0a0f1a" stroke="#1e3a5f" stroke-width="1"/>
+            <text x="20" y="436" font-size="9" fill="#94a3b8" font-weight="bold">LEGENDA</text>
+            <circle cx="25" cy="448" r="5" fill="#ef4444"/><text x="35" y="452" font-size="8" fill="#cbd5e1">Sensor Kritis</text>
+            <circle cx="25" cy="462" r="5" fill="#f59e0b"/><text x="35" y="466" font-size="8" fill="#cbd5e1">Sensor Waspada</text>
+            <circle cx="25" cy="476" r="5" fill="#22c55e"/><text x="35" y="480" font-size="8" fill="#cbd5e1">Sensor Normal</text>
+            <g transform="translate(655, 30)">
+              <circle cx="0" cy="0" r="20" fill="#0a0f1a" stroke="#1e3a5f" stroke-width="1"/>
+              <text x="0" y="-8" text-anchor="middle" font-size="8" fill="#00e5ff" font-weight="bold">N</text>
+              <text x="0" y="14" text-anchor="middle" font-size="7" fill="#475569">S</text>
+              <text x="-12" y="4" text-anchor="middle" font-size="7" fill="#475569">W</text>
+              <text x="12" y="4" text-anchor="middle" font-size="7" fill="#475569">E</text>
+              <line x1="0" y1="-5" x2="0" y2="-15" stroke="#00e5ff" stroke-width="2"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+      <div class="map-stats-panel">
+        <h3>Statistik Zona</h3>
+        <div class="zone-stats">
+          <div class="zone-stat-item critical-zone">
+            <div class="zone-dot"></div>
+            <div class="zone-info">
+              <div class="zone-name">Zona A (Sudirman)</div>
+              <div class="zone-risk-bar"><div style="width:89%;background:#ef4444"></div></div>
+              <div class="zone-details">Risiko: 89% · Luas: 2.3 km2</div>
+            </div>
+          </div>
+          <div class="zone-stat-item warning-zone">
+            <div class="zone-dot yellow-dot"></div>
+            <div class="zone-info">
+              <div class="zone-name">Zona B (Kuningan)</div>
+              <div class="zone-risk-bar"><div style="width:74%;background:#f59e0b"></div></div>
+              <div class="zone-details">Risiko: 74% · Luas: 1.8 km2</div>
+            </div>
+          </div>
+          <div class="zone-stat-item medium-zone">
+            <div class="zone-dot orange-dot"></div>
+            <div class="zone-info">
+              <div class="zone-name">Zona C (Thamrin)</div>
+              <div class="zone-risk-bar"><div style="width:42%;background:#eab308"></div></div>
+              <div class="zone-details">Risiko: 42% · Luas: 3.1 km2</div>
+            </div>
+          </div>
+          <div class="zone-stat-item ok-zone">
+            <div class="zone-dot green-dot"></div>
+            <div class="zone-info">
+              <div class="zone-name">Zona D (Casablanca)</div>
+              <div class="zone-risk-bar"><div style="width:18%;background:#22c55e"></div></div>
+              <div class="zone-details">Risiko: 18% · Luas: 2.7 km2</div>
+            </div>
+          </div>
+        </div>
+        <div class="emergency-contacts">
+          <h4>Kontak Darurat</h4>
+          <div class="ec-item"><span>BPBD Jakarta</span><span class="ec-num">021-3851-111</span></div>
+          <div class="ec-item"><span>Dinas SDA DKI</span><span class="ec-num">1500-277</span></div>
+          <div class="ec-item"><span>Posko Banjir</span><span class="ec-num">119 ext.27</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 7 — ABOUT -->
+  <section id="about" class="section about-section">
+    <div class="section-header">
+      <div class="section-tag">TENTANG PROYEK</div>
+      <h2>Tentang <span class="gradient-text">DrainWatch</span></h2>
+      <p>Inovasi teknologi terpadu untuk perkotaan yang lebih tangguh dan berkelanjutan</p>
+    </div>
+    <div class="about-grid">
+      <div class="about-desc-card">
+        <h3>Misi Proyek</h3>
+        <p>DrainWatch adalah sistem pemantauan drainase cerdas generasi berikutnya yang mengintegrasikan tiga teknologi inti — <strong>Computer Vision berbasis YOLO</strong>, jaringan <strong>IoT sensor</strong>, dan <strong>model prediktif AI</strong> — untuk mendeteksi, menganalisis, dan memprediksi risiko penyumbatan drainase secara real-time.</p>
+        <p>Sistem ini dirancang untuk mendukung ketahanan infrastruktur perkotaan dalam menghadapi tantangan perubahan iklim dan urbanisasi yang semakin intensif.</p>
+        <div class="about-tags">
+          <span class="about-tag">Smart City</span>
+          <span class="about-tag">Computer Vision</span>
+          <span class="about-tag">IoT</span>
+          <span class="about-tag">AI/ML</span>
+          <span class="about-tag">YOLO</span>
+          <span class="about-tag">LSTM</span>
+          <span class="about-tag">Edge Computing</span>
+          <span class="about-tag">Urban Resilience</span>
+        </div>
+      </div>
+      <div class="tech-stack-card">
+        <h3>Stack Teknologi</h3>
+        <div class="tech-layers">
+          <div class="tech-layer">
+            <div class="layer-label">Persepsi</div>
+            <div class="layer-items">
+              <div class="layer-item"><span class="li-icon">&#128247;</span><div><b>CCTV IP Camera</b><small>4K, IR Night Vision</small></div></div>
+              <div class="layer-item"><span class="li-icon">&#128225;</span><div><b>IoT Sensor Node</b><small>Ultrasonic, pH, Turbidity</small></div></div>
+              <div class="layer-item"><span class="li-icon">&#127783;</span><div><b>Rain Gauge</b><small>BMKG Integration</small></div></div>
+            </div>
+          </div>
+          <div class="tech-layer">
+            <div class="layer-label">Pemrosesan Edge</div>
+            <div class="layer-items">
+              <div class="layer-item"><span class="li-icon">&#9881;</span><div><b>NVIDIA Jetson Orin</b><small>YOLOv8 inference 30fps</small></div></div>
+              <div class="layer-item"><span class="li-icon">&#128279;</span><div><b>LoRaWAN Gateway</b><small>MQTT Protocol</small></div></div>
+            </div>
+          </div>
+          <div class="tech-layer">
+            <div class="layer-label">Platform Cloud</div>
+            <div class="layer-items">
+              <div class="layer-item"><span class="li-icon">&#9729;</span><div><b>Cloud Server</b><small>Docker, Kubernetes</small></div></div>
+              <div class="layer-item"><span class="li-icon">&#128451;</span><div><b>InfluxDB + TimescaleDB</b><small>Time-series data storage</small></div></div>
+              <div class="layer-item"><span class="li-icon">&#129504;</span><div><b>ML Pipeline</b><small>Python, TensorFlow, PyTorch</small></div></div>
+            </div>
+          </div>
+          <div class="tech-layer">
+            <div class="layer-label">Aplikasi</div>
+            <div class="layer-items">
+              <div class="layer-item"><span class="li-icon">&#127760;</span><div><b>Web Dashboard</b><small>Real-time monitoring</small></div></div>
+              <div class="layer-item"><span class="li-icon">&#128241;</span><div><b>Mobile App</b><small>Android &amp; iOS alert</small></div></div>
+              <div class="layer-item"><span class="li-icon">&#128680;</span><div><b>Early Warning System</b><small>SMS, Telegram, WhatsApp</small></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="impact-card">
+        <h3>Dampak &amp; Capaian</h3>
+        <div class="impact-grid">
+          <div class="impact-item"><div class="impact-num" data-target="98.7">0</div><div class="impact-unit">%</div><div class="impact-label">Akurasi deteksi penyumbatan</div></div>
+          <div class="impact-item"><div class="impact-num" data-target="72">0</div><div class="impact-unit">jam</div><div class="impact-label">Lead time prediksi banjir</div></div>
+          <div class="impact-item"><div class="impact-num" data-target="85">0</div><div class="impact-unit">%</div><div class="impact-label">Pengurangan dampak banjir</div></div>
+          <div class="impact-item"><div class="impact-num" data-target="47">0</div><div class="impact-unit">titik</div><div class="impact-label">Sensor aktif terpasang</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <svg width="32" height="32" viewBox="0 0 64 64" fill="none">
+            <circle cx="32" cy="32" r="30" stroke="url(#flg)" stroke-width="2"/>
+            <path d="M20 32 Q32 18 44 32 Q32 46 20 32Z" fill="url(#flg2)"/>
+            <circle cx="32" cy="32" r="5" fill="#00e5ff"/>
+            <defs>
+              <linearGradient id="flg" x1="0" y1="0" x2="64" y2="64"><stop offset="0%" stop-color="#00e5ff"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient>
+              <linearGradient id="flg2" x1="0" y1="0" x2="64" y2="64"><stop offset="0%" stop-color="#00e5ff"/><stop offset="100%" stop-color="#0ea5e9"/></linearGradient>
+            </defs>
+          </svg>
+          DRAINWATCH
+        </div>
+        <p>Sistem Pemantauan Drainase Cerdas Berbasis Computer Vision, IoT, dan Pemodelan Prediktif</p>
+      </div>
+      <div class="footer-links">
+        <div class="fl-col">
+          <h4>Sistem</h4>
+          <a href="#dashboard">Dashboard</a>
+          <a href="#detection">Deteksi YOLO</a>
+          <a href="#iot">Sensor IoT</a>
+          <a href="#prediction">Prediksi</a>
+        </div>
+        <div class="fl-col">
+          <h4>Informasi</h4>
+          <a href="#map">Peta Risiko</a>
+          <a href="#about">Tentang</a>
+          <a href="#">Dokumentasi</a>
+          <a href="#">API</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 DrainWatch — Infrastruktur Perkotaan Berkelanjutan</span>
+      <span>v2.1.0 · YOLOv8 · Python 3.11 · TF 2.15</span>
+    </div>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#8593;</button>
+
+  <!-- ── GIS MAP INSPECTOR MODAL ── -->
+  <div class="map-inspector-modal" id="mapModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h4><span id="modal-sensor-badge" class="status-badge status-critical">KRITIS</span> <span id="modal-sensor-id">S-01</span></h4>
+        <button class="modal-close-btn" onclick="closeMapModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:14px;color:var(--text-secondary);margin-bottom:14px" id="modal-sensor-loc">Jl. Sudirman KM.2 (Zona A)</p>
+        <div class="modal-telemetry-grid">
+          <div class="modal-stat-box">
+            <div class="modal-stat-label">Level Air Saat Ini</div>
+            <div class="modal-stat-value" id="modal-stat-level" style="color:var(--red)">87.2 cm</div>
+          </div>
+          <div class="modal-stat-box">
+            <div class="modal-stat-label">Tingkat Penyumbatan</div>
+            <div class="modal-stat-value" id="modal-stat-blockage" style="color:var(--red)">89%</div>
+          </div>
+          <div class="modal-stat-box">
+            <div class="modal-stat-label">Debit Aliran Air</div>
+            <div class="modal-stat-value" id="modal-stat-flow" style="color:var(--cyan)">2.1 m³/h</div>
+          </div>
+          <div class="modal-stat-box">
+            <div class="modal-stat-label">AI CCTV Status</div>
+            <div class="modal-stat-value" id="modal-stat-cctv" style="color:#22c55e">ONLINE</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn-primary" style="flex:1;justify-content:center;padding:10px" onclick="jumpToCCTV()">
+            <span>📹</span> Tinjau CCTV YOLO
+          </button>
+          <button class="btn-secondary" style="padding:10px 16px" onclick="closeMapModal()">
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── LIVE TOAST NOTIFICATION CONTAINER ── -->
+  <div id="live-toast-container"></div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
