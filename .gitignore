@@ -17,3 +17,18 @@ yarn-error.log*
 
 # Node modules (if any added later)
 node_modules/
+
+# Python Cache & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.env
+.venv/
+venv/
+ENV/
+
+# YOLO & Large model weights
+*.pt
+*.onnx
+runs/
+

@@ -1765,3 +1765,124 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+// ──────────────────────────────────────────────
+//  DRAINWATCH LIVE WEBSOCKET CLIENT (REAL-TIME ENGINE)
+// ──────────────────────────────────────────────
+let liveWsClient = null;
+let liveVideoWsClient = null;
+
+function initDrainWatchWebSocket() {
+  const wsHost = window.location.hostname || "127.0.0.1";
+  const wsPort = "8000";
+  const wsUrl = `ws://${wsHost}:${wsPort}/ws/telemetry`;
+  const videoWsUrl = `ws://${wsHost}:${wsPort}/ws/video_feed`;
+
+  console.log(`[DrainWatch WS] Menyambung ke Real-Time Hub: ${wsUrl}`);
+  try {
+    liveWsClient = new WebSocket(wsUrl);
+
+    liveWsClient.onopen = () => {
+      console.log("%c[DrainWatch WS] LIVE CONNECTED! Beralih ke data sensor real-time.", "color:#00e5ff;font-weight:bold");
+      if (DW_STATE.simTimer) clearInterval(DW_STATE.simTimer);
+      if (typeof showLiveToast === 'function') {
+        showLiveToast("⚡ Terhubung ke Hub Real-Time DrainWatch!", "success");
+      }
+    };
+
+    liveWsClient.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+        if (payload.type === "SENSOR_UPDATE") {
+          const d = payload.data;
+          const target = SENSOR_DATA.find(s => s.id === payload.sensor_id);
+          if (target) {
+            target.level = d.water_level_cm;
+            if (d.flow_rate_m3h !== undefined) target.flow = d.flow_rate_m3h;
+            if (d.temperature_c !== undefined) target.temp = d.temperature_c;
+            if (d.ph !== undefined) target.ph = d.ph;
+            if (d.turbidity_ntu !== undefined) target.turb = d.turbidity_ntu;
+            target.status = d.status;
+            target.time = "Baru saja (Live)";
+          } else {
+            SENSOR_DATA.push({
+              id: payload.sensor_id,
+              location: d.location || `Sensor Node ${payload.sensor_id}`,
+              level: d.water_level_cm,
+              flow: d.flow_rate_m3h || 4.0,
+              blockage: 15,
+              status: d.status,
+              temp: d.temperature_c || 28.0,
+              ph: d.ph || 7.0,
+              turb: d.turbidity_ntu || 40,
+              time: "Baru saja"
+            });
+          }
+
+          filteredData = [...SENSOR_DATA];
+          if (typeof renderTable === 'function') renderTable(filteredData);
+          if (typeof updateSensorDetailCards === 'function') updateSensorDetailCards();
+          if (typeof pushChartRealtimeTick === 'function') pushChartRealtimeTick();
+          if (typeof updateOverviewCards === 'function') updateOverviewCards();
+
+          if (d.status === 'critical') {
+            if (typeof playAlarmAudio === 'function') playAlarmAudio();
+            if (typeof showLiveToast === 'function') {
+              showLiveToast(`🚨 BAHAYA: ${payload.sensor_id} mencapai ${d.water_level_cm} cm!`, 'critical');
+            }
+          }
+        } else if (payload.type === "INITIAL_SNAPSHOT") {
+          console.log("[DrainWatch WS] Snapshot awal diterima:", payload);
+          if (payload.sensors) {
+            Object.values(payload.sensors).forEach(d => {
+              const target = SENSOR_DATA.find(s => s.id === d.sensor_id);
+              if (target) {
+                target.level = d.water_level_cm;
+                target.status = d.status;
+              }
+            });
+            filteredData = [...SENSOR_DATA];
+            if (typeof renderTable === 'function') renderTable(filteredData);
+            if (typeof updateSensorDetailCards === 'function') updateSensorDetailCards();
+          }
+        }
+      } catch (err) {
+        console.error("Gagal parse pesan WS:", err);
+      }
+    };
+
+    liveWsClient.onclose = () => {
+      console.warn("[DrainWatch WS] Terputus. Menjadwalkan rekoneksi...");
+      setTimeout(initDrainWatchWebSocket, 4000);
+    };
+
+    liveWsClient.onerror = () => {
+      // Server backend mungkin belum dinyalakan, fallback ke simulasi lokal
+    };
+
+    liveVideoWsClient = new WebSocket(videoWsUrl);
+    liveVideoWsClient.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+        if (payload.type === "CV_FRAME" && payload.frame) {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.getElementById('camera-canvas');
+            if (canvas) {
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            }
+          };
+          img.src = "data:image/jpeg;base64," + payload.frame;
+        }
+      } catch (err) {}
+    };
+  } catch (e) {
+    console.warn("WebSocket init error:", e);
+  }
+}
+
+window.addEventListener('load', () => {
+  setTimeout(initDrainWatchWebSocket, 800);
+});
+
