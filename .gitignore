@@ -32,3 +32,6 @@ ENV/
 *.onnx
 runs/
 
+
+.vercel
+.env*

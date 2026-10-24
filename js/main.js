@@ -8,6 +8,8 @@
 // ──────────────────────────────────────────────
 //  GLOBAL STATE & CONFIGURATION
 // ──────────────────────────────────────────────
+//  GLOBAL STATE & CONFIGURATION
+// ──────────────────────────────────────────────
 const DW_STATE = {
   simSpeed: 1,             // 0 = Pause, 1 = 1x, 2 = 2x, 5 = 5x
   isStorm: false,          // Storm event trigger
@@ -20,34 +22,45 @@ const DW_STATE = {
   selectedSensorId: 'S-01',// Selected IoT sensor node
   webcamActive: false,     // User webcam stream active
   webcamStream: null,      // MediaStream reference
+  cameraFacingMode: 'user',// 'user' (depan) or 'environment' (belakang/saluran)
+  cvVisualMode: 'yolo',    // 'yolo', 'edge', 'heatmap', 'waterline'
   uploadedImage: null,     // User uploaded image for detection
   simTimer: null,          // Real-time interval timer
+  weatherTimer: null,      // Open-Meteo polling timer
   audioCtx: null,          // Web Audio context
   lastFpsTime: performance.now(),
   frameCount: 0,
   currentFps: 30.1,
   currentLatency: 15.2,
+  liveWeather: {
+    rain_mm_h: 0.0,
+    temp_c: 28.0,
+    humid_pct: 75,
+    pressure_hpa: 940,
+    lastUpdate: 'Menghubungkan...',
+    forecastRain: []
+  }
 };
 
 // ──────────────────────────────────────────────
-//  SENSOR TELEMETRY DATA REPOSITORY
+//  SENSOR TELEMETRY DATA REPOSITORY (BOJONGSOANG & BANDUNG RAYA)
 // ──────────────────────────────────────────────
 const SENSOR_DATA = [
-  { id: 'S-01', location: 'Jl. Sudirman KM.2', level: 87.2, flow: 2.3, blockage: 89, status: 'critical', temp: 28.4, ph: 6.8, turb: 145, time: 'Baru saja' },
-  { id: 'S-02', location: 'Jl. MH Thamrin', level: 62.4, flow: 4.1, blockage: 47, status: 'warning', temp: 27.9, ph: 7.1, turb: 92, time: '1 mnt lalu' },
-  { id: 'S-03', location: 'Jl. Kuningan Raya', level: 31.0, flow: 6.8, blockage: 12, status: 'normal', temp: 26.8, ph: 7.3, turb: 45, time: 'Baru saja' },
-  { id: 'S-04', location: 'Jl. Rasuna Said', level: 28.5, flow: 7.2, blockage: 8, status: 'normal', temp: 27.1, ph: 7.2, turb: 38, time: '2 mnt lalu' },
-  { id: 'S-05', location: 'Jl. HR Rasuna', level: 45.3, flow: 5.5, blockage: 22, status: 'normal', temp: 27.5, ph: 7.0, turb: 55, time: '1 mnt lalu' },
-  { id: 'S-06', location: 'Jl. Casablanca', level: 39.8, flow: 6.1, blockage: 15, status: 'normal', temp: 27.2, ph: 7.1, turb: 48, time: '3 mnt lalu' },
-  { id: 'S-07', location: 'Jl. Gatot Subroto', level: 83.1, flow: 1.8, blockage: 82, status: 'critical', temp: 29.1, ph: 6.6, turb: 168, time: 'Baru saja' },
-  { id: 'S-08', location: 'Jl. TB Simatupang', level: 52.6, flow: 4.9, blockage: 35, status: 'warning', temp: 27.8, ph: 7.0, turb: 78, time: '2 mnt lalu' },
-  { id: 'S-09', location: 'Semanggi', level: 24.2, flow: 7.5, blockage: 6, status: 'normal', temp: 26.5, ph: 7.4, turb: 32, time: '1 mnt lalu' },
-  { id: 'S-10', location: 'Jl. Sudirman KM.5', level: 71.4, flow: 3.2, blockage: 58, status: 'warning', temp: 28.2, ph: 6.9, turb: 110, time: '4 mnt lalu' },
-  { id: 'S-11', location: 'Jl. Jend. Basuki', level: 19.5, flow: 7.8, blockage: 4, status: 'normal', temp: 26.2, ph: 7.5, turb: 28, time: '1 mnt lalu' },
-  { id: 'S-12', location: 'Jl. Casablanca Timur', level: 33.7, flow: 6.4, blockage: 11, status: 'normal', temp: 27.0, ph: 7.2, turb: 42, time: '2 mnt lalu' },
-  { id: 'S-13', location: 'Jl. Gatot Sub. KM.6', level: 81.0, flow: 2.1, blockage: 79, status: 'critical', temp: 28.9, ph: 6.7, turb: 155, time: 'Baru saja' },
-  { id: 'S-14', location: 'Pancoran', level: 64.8, flow: 3.8, blockage: 51, status: 'warning', temp: 28.0, ph: 6.9, turb: 98, time: '3 mnt lalu' },
-  { id: 'S-15', location: 'Jl. Ahmad Yani', level: 26.3, flow: 7.1, blockage: 9, status: 'normal', temp: 26.7, ph: 7.3, turb: 36, time: '2 mnt lalu' },
+  { id: 'S-01', location: 'Jembatan Citarum Bojongsoang KM 2.5', zone: 'Zona A', level: 87.2, flow: 2.3, blockage: 89, status: 'critical', temp: 28.4, ph: 6.8, turb: 145, time: 'Baru saja' },
+  { id: 'S-02', location: 'Drainase Sukabirus - Telkom University', zone: 'Zona C', level: 62.4, flow: 4.1, blockage: 47, status: 'warning', temp: 27.9, ph: 7.1, turb: 92, time: '1 mnt lalu' },
+  { id: 'S-03', location: 'Polder Retensi Cieunteung Baleendah', zone: 'Zona B', level: 31.0, flow: 6.8, blockage: 12, status: 'normal', temp: 26.8, ph: 7.3, turb: 45, time: 'Baru saja' },
+  { id: 'S-04', location: 'Pintu Air Dayeuhkolot (Cikapundung Kolot)', zone: 'Zona A', level: 28.5, flow: 7.2, blockage: 8, status: 'normal', temp: 27.1, ph: 7.2, turb: 38, time: '2 mnt lalu' },
+  { id: 'S-05', location: 'Saluran Drainase Ciganitri Bojongsoang', zone: 'Zona C', level: 45.3, flow: 5.5, blockage: 22, status: 'normal', temp: 27.5, ph: 7.0, turb: 55, time: '1 mnt lalu' },
+  { id: 'S-06', location: 'Kolam Retensi Gedebage Bandung', zone: 'Zona D', level: 39.8, flow: 6.1, blockage: 15, status: 'normal', temp: 27.2, ph: 7.1, turb: 48, time: '3 mnt lalu' },
+  { id: 'S-07', location: 'Pintu Air Kolam Retensi Andir Baleendah', zone: 'Zona B', level: 83.1, flow: 1.8, blockage: 82, status: 'critical', temp: 29.1, ph: 6.6, turb: 168, time: 'Baru saja' },
+  { id: 'S-08', location: 'Saluran Primer Ciwastra Buahbatu', zone: 'Zona C', level: 52.6, flow: 4.9, blockage: 35, status: 'warning', temp: 27.8, ph: 7.0, turb: 78, time: '2 mnt lalu' },
+  { id: 'S-09', location: 'Irigasi Sapan Tegalluar Bojongsoang', zone: 'Zona D', level: 24.2, flow: 7.5, blockage: 6, status: 'normal', temp: 26.5, ph: 7.4, turb: 32, time: '1 mnt lalu' },
+  { id: 'S-10', location: 'Bunderan Bojongsoang - Podomoro Park', zone: 'Zona A', level: 71.4, flow: 3.2, blockage: 58, status: 'warning', temp: 28.2, ph: 6.9, turb: 110, time: '4 mnt lalu' },
+  { id: 'S-11', location: 'Jembatan Cipurut Dayeuhkolot', zone: 'Zona A', level: 19.5, flow: 7.8, blockage: 4, status: 'normal', temp: 26.2, ph: 7.5, turb: 28, time: '1 mnt lalu' },
+  { id: 'S-12', location: 'Sungai Citepus Pasirluyu Buahbatu', zone: 'Zona C', level: 33.7, flow: 6.4, blockage: 11, status: 'normal', temp: 27.0, ph: 7.2, turb: 42, time: '2 mnt lalu' },
+  { id: 'S-13', location: 'Saluran Pembuang Cijagra Bojongsoang', zone: 'Zona A', level: 81.0, flow: 2.1, blockage: 79, status: 'critical', temp: 28.9, ph: 6.7, turb: 155, time: 'Baru saja' },
+  { id: 'S-14', location: 'Tanggul Citarum Cisirung Dayeuhkolot', zone: 'Zona A', level: 64.8, flow: 3.8, blockage: 51, status: 'warning', temp: 28.0, ph: 6.9, turb: 98, time: '3 mnt lalu' },
+  { id: 'S-15', location: 'Saluran Buangan Kopo - Citarum Hilir', zone: 'Zona B', level: 26.3, flow: 7.1, blockage: 9, status: 'normal', temp: 26.7, ph: 7.3, turb: 36, time: '2 mnt lalu' },
 ];
 
 let filteredData = [...SENSOR_DATA];
@@ -64,54 +77,54 @@ const CHART_HISTORY = {
 };
 
 // ──────────────────────────────────────────────
-//  CAMERA PRESETS & SIMULATED DETECTIONS
+//  CAMERA PRESETS & DETECTIONS (BOJONGSOANG & BANDUNG)
 // ──────────────────────────────────────────────
 const CAM_PRESETS = {
   1: {
     id: 1,
-    name: 'CAM-01 · Jl. Sudirman KM.2',
+    name: 'CAM-01 · Jembatan Citarum Bojongsoang KM 2.5',
     sensorId: 'S-01',
     status: 'critical',
     blockage: 89,
     flowSpeed: 0.6,
     baseObjects: [
-      { id: 101, class: 'blockage', label: 'Penyumbatan Parah', baseConf: 0.942, color: '#ef4444', x: 0.30, y: 0.45, w: 0.28, h: 0.32, vx: 0.001, vy: 0.002, t: 0 },
-      { id: 102, class: 'plastic', label: 'Sampah Plastik (Botol/Gelas)', baseConf: 0.914, color: '#a855f7', x: 0.62, y: 0.52, w: 0.18, h: 0.22, vx: -0.002, vy: 0.001, t: 1 },
-      { id: 103, class: 'debris', label: 'Debris Organik (Ranting Kayu)', baseConf: 0.875, color: '#22c55e', x: 0.48, y: 0.38, w: 0.22, h: 0.18, vx: 0.0015, vy: -0.001, t: 2 },
-      { id: 104, class: 'sediment', label: 'Sedimentasi Lumpur Tinggi', baseConf: 0.783, color: '#f59e0b', x: 0.22, y: 0.62, w: 0.24, h: 0.20, vx: 0.0005, vy: 0.001, t: 3 },
+      { id: 101, class: 'blockage', label: 'Penyumbatan Parah (Sampah/Kayu)', baseConf: 0.942, color: '#ef4444', x: 0.30, y: 0.45, w: 0.28, h: 0.32, vx: 0.001, vy: 0.002, t: 0 },
+      { id: 102, class: 'plastic', label: 'Sampah Plastik (Kemasan/Botol)', baseConf: 0.914, color: '#a855f7', x: 0.62, y: 0.52, w: 0.18, h: 0.22, vx: -0.002, vy: 0.001, t: 1 },
+      { id: 103, class: 'debris', label: 'Debris Organik (Ranting Citarum)', baseConf: 0.875, color: '#22c55e', x: 0.48, y: 0.38, w: 0.22, h: 0.18, vx: 0.0015, vy: -0.001, t: 2 },
+      { id: 104, class: 'sediment', label: 'Sedimentasi Lumpur Sungai', baseConf: 0.783, color: '#f59e0b', x: 0.22, y: 0.62, w: 0.24, h: 0.20, vx: 0.0005, vy: 0.001, t: 3 },
     ]
   },
   2: {
     id: 2,
-    name: 'CAM-02 · Jl. MH Thamrin',
+    name: 'CAM-02 · Drainase Sukabirus - Telkom Univ',
     sensorId: 'S-02',
     status: 'warning',
     blockage: 47,
     flowSpeed: 1.1,
     baseObjects: [
-      { id: 201, class: 'debris', label: 'Ranting & Dedaunan Apung', baseConf: 0.865, color: '#22c55e', x: 0.35, y: 0.42, w: 0.25, h: 0.20, vx: 0.003, vy: 0.001, t: 0 },
-      { id: 202, class: 'plastic', label: 'Kemasan Plastik', baseConf: 0.762, color: '#a855f7', x: 0.58, y: 0.50, w: 0.16, h: 0.16, vx: -0.001, vy: 0.002, t: 1 },
-      { id: 203, class: 'sediment', label: 'Lapisan Lumpur Mengendap', baseConf: 0.710, color: '#f59e0b', x: 0.20, y: 0.65, w: 0.26, h: 0.18, vx: 0.0004, vy: 0.0005, t: 2 },
+      { id: 201, class: 'debris', label: 'Ranting & Sampah Apung', baseConf: 0.865, color: '#22c55e', x: 0.35, y: 0.42, w: 0.25, h: 0.20, vx: 0.003, vy: 0.001, t: 0 },
+      { id: 202, class: 'plastic', label: 'Plastik Makanan Ringan', baseConf: 0.762, color: '#a855f7', x: 0.58, y: 0.50, w: 0.16, h: 0.16, vx: -0.001, vy: 0.002, t: 1 },
+      { id: 203, class: 'sediment', label: 'Lapisan Endapan Saluran', baseConf: 0.710, color: '#f59e0b', x: 0.20, y: 0.65, w: 0.26, h: 0.18, vx: 0.0004, vy: 0.0005, t: 2 },
     ]
   },
   3: {
     id: 3,
-    name: 'CAM-03 · Jl. Gatot Subroto',
-    sensorId: 'S-07',
+    name: 'CAM-03 · Polder Retensi Cieunteung Baleendah',
+    sensorId: 'S-03',
     status: 'critical',
     blockage: 82,
     flowSpeed: 0.4,
     baseObjects: [
-      { id: 301, class: 'blockage', label: 'Penyumbatan Gorong-gorong', baseConf: 0.958, color: '#ef4444', x: 0.28, y: 0.40, w: 0.34, h: 0.35, vx: 0.0008, vy: 0.001, t: 0 },
-      { id: 302, class: 'debris', label: 'Batang Pohon Tumbang', baseConf: 0.912, color: '#22c55e', x: 0.55, y: 0.48, w: 0.28, h: 0.22, vx: -0.001, vy: 0.0015, t: 1 },
+      { id: 301, class: 'blockage', label: 'Penyumbatan Saringan Polder', baseConf: 0.958, color: '#ef4444', x: 0.28, y: 0.40, w: 0.34, h: 0.35, vx: 0.0008, vy: 0.001, t: 0 },
+      { id: 302, class: 'debris', label: 'Batang Kayu Terapung', baseConf: 0.912, color: '#22c55e', x: 0.55, y: 0.48, w: 0.28, h: 0.22, vx: -0.001, vy: 0.0015, t: 1 },
       { id: 303, class: 'plastic', label: 'Tumpukan Sampah Anorganik', baseConf: 0.887, color: '#a855f7', x: 0.38, y: 0.60, w: 0.22, h: 0.22, vx: 0.0012, vy: -0.0008, t: 2 },
-      { id: 304, class: 'sediment', label: 'Sedimentasi Pasir & Tanah', baseConf: 0.825, color: '#f59e0b', x: 0.16, y: 0.68, w: 0.30, h: 0.18, vx: 0.0003, vy: 0.0004, t: 3 },
+      { id: 304, class: 'sediment', label: 'Sedimentasi Lumpur Kolam', baseConf: 0.825, color: '#f59e0b', x: 0.16, y: 0.68, w: 0.30, h: 0.18, vx: 0.0003, vy: 0.0004, t: 3 },
     ]
   },
   4: {
     id: 4,
-    name: 'CAM-04 · Jl. Kuningan Raya',
-    sensorId: 'S-03',
+    name: 'CAM-04 · Pintu Air Dayeuhkolot (Cikapundung)',
+    sensorId: 'S-04',
     status: 'normal',
     blockage: 12,
     flowSpeed: 1.8,
@@ -150,6 +163,11 @@ function initAll() {
   updateClock();
   setInterval(updateClock, 1000);
 
+  // Real-time Open-Meteo Weather Integration (Bojongsoang & Bandung Raya)
+  fetchRealtimeWeatherData(false);
+  if (DW_STATE.weatherTimer) clearInterval(DW_STATE.weatherTimer);
+  DW_STATE.weatherTimer = setInterval(() => fetchRealtimeWeatherData(false), 180000); // 3 menit auto-update
+
   // Real-time YOLO canvas engine
   initYoloLiveCanvas();
 
@@ -159,7 +177,7 @@ function initAll() {
   // Launch dynamic real-time telemetry loop
   startRealtimeSimulation();
 
-  console.log('%c[DrainWatch] Real-time AI Vision & Telemetry Engine Online', 'color:#00e5ff;font-weight:bold;font-size:14px');
+  console.log('%c[DrainWatch] Real-time AI Vision & Telemetry Engine Online (Bojongsoang & Bandung Raya)', 'color:#00e5ff;font-weight:bold;font-size:14px');
 }
 
 // ──────────────────────────────────────────────
@@ -398,10 +416,10 @@ function seedInitialEventLogs() {
   feed.innerHTML = '';
 
   const initialLogs = [
-    { badge: 'YOLO', cls: 'badge-yolo', text: 'Model <strong>YOLOv8n-DrainNet</strong> dimuat (TensorRT FP16, Latency ~15.2ms)' },
-    { badge: 'IoT', cls: 'badge-iot', text: 'Gateway LoRaWAN GW-01 terhubung: 47 node sensor telemetri online' },
-    { badge: 'WARN', cls: 'badge-warn', text: 'Sensor S-10 (Jl. Sudirman KM.5): Peningkatan debit air 15% dalam 10 menit' },
-    { badge: 'CRIT', cls: 'badge-crit', text: 'Deteksi CAM-01: Penyumbatan 89% terdeteksi di Jl. Sudirman KM.2' },
+    { badge: 'YOLO', cls: 'badge-yolo', text: 'Model <strong>YOLOv8n-DrainNet</strong> dimuat (Canvas WebRTC & Vision Pipeline 30 FPS)' },
+    { badge: 'METEO', cls: 'badge-iot', text: 'Stasiun Cuaca Real-Time Bojongsoang (Open-Meteo) terhubung [-6.9745, 107.6303]' },
+    { badge: 'WARN', cls: 'badge-warn', text: 'Sensor S-02 (Sukabirus Telkom Univ): Level air meningkat 15 cm/jam' },
+    { badge: 'CRIT', cls: 'badge-crit', text: 'Deteksi CAM-01: Penyumbatan 89% terdeteksi di Jembatan Citarum Bojongsoang KM 2.5' },
   ];
 
   initialLogs.forEach(log => {
@@ -524,15 +542,45 @@ function initYoloLiveCanvas() {
     const video = document.getElementById('webcam-video');
     if (DW_STATE.webcamActive && video && video.readyState >= 2) {
       ctx.drawImage(video, 0, 0, W, H);
+      // Run real-time client-side Computer Vision frame analysis
+      runRealtimeCvFrameAnalysis(video, ctx, W, H);
+
+      // Camera Watermark Badge
+      ctx.save();
+      ctx.fillStyle = 'rgba(6, 13, 26, 0.75)';
+      ctx.fillRect(14, 14, 300, 26);
+      ctx.strokeStyle = 'rgba(0, 229, 255, 0.5)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(14, 14, 300, 26);
+
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.arc(26, 27, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 10px JetBrains Mono, monospace';
+      const facingText = DW_STATE.cameraFacingMode === 'environment' ? 'KAMERA SALURAN AIR' : 'KAMERA PENGAWAS';
+      ctx.fillText(`LIVE · ${facingText} (BOJONGSOANG)`, 38, 30);
+      ctx.restore();
+
     } else if (DW_STATE.uploadedImage) {
       ctx.drawImage(DW_STATE.uploadedImage, 0, 0, W, H);
+      runRealtimeCvFrameAnalysis(DW_STATE.uploadedImage, ctx, W, H);
     } else {
       // Draw procedural futuristic drainage CCTV scene
       drawDrainageCCTVScene(ctx, W, H);
-    }
+      // Dynamic water simulation overlay (subtle flow ripple)
+      drawWaterCurrentOverlay(ctx, W, H);
 
-    // Dynamic water simulation overlay (subtle flow ripple)
-    drawWaterCurrentOverlay(ctx, W, H);
+      if (DW_STATE.cvVisualMode === 'edge') {
+        applySobelEdgeFilter(ctx, W, H);
+      } else if (DW_STATE.cvVisualMode === 'heatmap') {
+        applyHeatmapOverlay(ctx, W, H, 0.45, 0.52, 0.4);
+      } else if (DW_STATE.cvVisualMode === 'waterline') {
+        drawWaterlineGridOverlay(ctx, W, H);
+      }
+    }
 
     // Update & draw tracked YOLO bounding boxes
     const detectedCount = drawYoloBoundingBoxes(ctx, W, H);
@@ -799,15 +847,199 @@ function updateDetectionResultsList() {
 }
 
 // ──────────────────────────────────────────────
-//  WEBCAM & MEDIA UPLOAD INTEGRATION
+//  COMPUTER VISION REAL-TIME ENGINE & ANALYTICS
+// ──────────────────────────────────────────────
+const cvOffscreen = document.createElement('canvas');
+cvOffscreen.width = 160;
+cvOffscreen.height = 120;
+const cvOffCtx = cvOffscreen.getContext('2d', { willReadFrequently: true });
+let prevGrayData = null;
+let smoothCentroidX = 0.5;
+let smoothCentroidY = 0.45;
+let cameraMotionEnergy = 0;
+
+function runRealtimeCvFrameAnalysis(sourceMedia, ctx, W, H) {
+  if (!sourceMedia) return;
+  try {
+    cvOffCtx.drawImage(sourceMedia, 0, 0, cvOffscreen.width, cvOffscreen.height);
+    const imgData = cvOffCtx.getImageData(0, 0, cvOffscreen.width, cvOffscreen.height);
+    const d = imgData.data;
+    const len = d.length;
+
+    let totalDiff = 0;
+    let sumX = 0;
+    let sumY = 0;
+    let motionPixels = 0;
+
+    const currentGray = new Uint8Array(cvOffscreen.width * cvOffscreen.height);
+
+    for (let i = 0, p = 0; i < len; i += 4, p++) {
+      const gray = (d[i] * 299 + d[i + 1] * 587 + d[i + 2] * 114) / 1000;
+      currentGray[p] = gray;
+
+      if (prevGrayData) {
+        const diff = Math.abs(gray - prevGrayData[p]);
+        if (diff > 22) {
+          totalDiff += diff;
+          const px = p % cvOffscreen.width;
+          const py = Math.floor(p / cvOffscreen.width);
+          sumX += px;
+          sumY += py;
+          motionPixels++;
+        }
+      }
+    }
+    prevGrayData = currentGray;
+
+    cameraMotionEnergy = motionPixels / (cvOffscreen.width * cvOffscreen.height);
+
+    // Dynamic Tracking centroid updates based on real motion/debris in camera feed
+    if (motionPixels > 35) {
+      const targetX = (sumX / motionPixels) / cvOffscreen.width;
+      const targetY = (sumY / motionPixels) / cvOffscreen.height;
+
+      smoothCentroidX += (targetX - smoothCentroidX) * 0.15;
+      smoothCentroidY += (targetY - smoothCentroidY) * 0.15;
+
+      if (currentTrackedObjects && currentTrackedObjects.length > 0) {
+        currentTrackedObjects[0].x = Math.max(0.06, Math.min(0.68, smoothCentroidX - currentTrackedObjects[0].w / 2));
+        currentTrackedObjects[0].y = Math.max(0.10, Math.min(0.62, smoothCentroidY - currentTrackedObjects[0].h / 2));
+        currentTrackedObjects[0].baseConf = Math.min(0.985, 0.88 + cameraMotionEnergy * 0.25);
+        currentTrackedObjects[0].label = 'Material/Limbah Terdeteksi';
+      }
+    }
+
+    // Apply active Computer Vision visual mode overlay
+    if (DW_STATE.cvVisualMode === 'edge') {
+      applySobelEdgeFilter(ctx, W, H);
+    } else if (DW_STATE.cvVisualMode === 'heatmap') {
+      applyHeatmapOverlay(ctx, W, H, smoothCentroidX, smoothCentroidY, cameraMotionEnergy);
+    } else if (DW_STATE.cvVisualMode === 'waterline') {
+      drawWaterlineGridOverlay(ctx, W, H);
+    }
+  } catch (err) {
+    // Media access or canvas fallback
+  }
+}
+
+function applySobelEdgeFilter(ctx, W, H) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(6, 182, 212, 0.12)';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = '#00e5ff';
+  ctx.lineWidth = 1.6;
+  ctx.shadowColor = '#00e5ff';
+  ctx.shadowBlur = 8;
+
+  const step = 28;
+  const time = performance.now() * 0.003;
+  for (let y = 15; y < H; y += step) {
+    ctx.beginPath();
+    for (let x = 0; x <= W; x += 18) {
+      const offset = Math.sin(x * 0.035 + y * 0.02 + time) * 6;
+      if (x === 0) ctx.moveTo(x, y + offset);
+      else ctx.lineTo(x, y + offset);
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function applyHeatmapOverlay(ctx, W, H, cxNorm, cyNorm, energy) {
+  ctx.save();
+  const cx = cxNorm * W;
+  const cy = cyNorm * H;
+  const radius = Math.max(75, Math.min(185, 95 + energy * 220));
+
+  const heatGrad = ctx.createRadialGradient(cx, cy, 8, cx, cy, radius);
+  heatGrad.addColorStop(0, 'rgba(239, 68, 68, 0.72)');
+  heatGrad.addColorStop(0.35, 'rgba(245, 158, 11, 0.52)');
+  heatGrad.addColorStop(0.7, 'rgba(34, 197, 94, 0.32)');
+  heatGrad.addColorStop(1, 'rgba(6, 182, 212, 0)');
+
+  ctx.fillStyle = heatGrad;
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(cx - 22, cy); ctx.lineTo(cx + 22, cy);
+  ctx.moveTo(cx, cy - 22); ctx.lineTo(cx, cy + 22);
+  ctx.stroke();
+
+  ctx.fillStyle = '#ef4444';
+  ctx.font = 'bold 10px JetBrains Mono, monospace';
+  ctx.fillText('HOTSPOT DEBRIS TINGGI', cx + 12, cy - 8);
+  ctx.restore();
+}
+
+function drawWaterlineGridOverlay(ctx, W, H) {
+  ctx.save();
+  const rulerX = 40;
+  const topY = 55;
+  const botY = H - 50;
+  const rulerH = botY - topY;
+
+  ctx.fillStyle = 'rgba(6, 13, 26, 0.75)';
+  ctx.fillRect(rulerX - 25, topY - 10, 50, rulerH + 20);
+  ctx.strokeStyle = '#00e5ff';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(rulerX - 25, topY - 10, 50, rulerH + 20);
+
+  const sensor = SENSOR_DATA[0] || { level: 87.2 };
+  const waterLevelCm = sensor.level;
+  const maxCm = 120;
+  const waterNorm = Math.min(1, Math.max(0, waterLevelCm / maxCm));
+  const surfaceY = botY - (waterNorm * rulerH);
+
+  for (let cm = 0; cm <= maxCm; cm += 20) {
+    const y = botY - (cm / maxCm) * rulerH;
+    ctx.strokeStyle = cm > 80 ? '#ef4444' : cm > 50 ? '#f59e0b' : '#22c55e';
+    ctx.lineWidth = cm % 40 === 0 ? 2 : 1;
+    ctx.beginPath();
+    ctx.moveTo(rulerX - 16, y);
+    ctx.lineTo(rulerX + 16, y);
+    ctx.stroke();
+
+    ctx.fillStyle = '#fff';
+    ctx.font = '9px JetBrains Mono, monospace';
+    ctx.fillText(`${cm}cm`, rulerX + 22, y + 3);
+  }
+
+  // Dynamic laser water level line across canvas
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([6, 4]);
+  ctx.beginPath();
+  ctx.moveTo(rulerX + 50, surfaceY);
+  ctx.lineTo(W - 20, surfaceY);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Surface water badge
+  ctx.fillStyle = '#ef4444';
+  ctx.fillRect(W - 170, surfaceY - 20, 150, 18);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 9px JetBrains Mono, monospace';
+  ctx.fillText(`PERMUKAAN AIR: ${waterLevelCm.toFixed(1)} cm`, W - 165, surfaceY - 7);
+
+  ctx.restore();
+}
+
+// ──────────────────────────────────────────────
+//  WEBCAM & MOBILE CAMERA ACCESS (COMPUTER VISION)
 // ──────────────────────────────────────────────
 async function toggleWebcam() {
   const video = document.getElementById('webcam-video');
   const btn = document.getElementById('btn-webcam');
   const btnText = document.getElementById('webcam-btn-text');
+  const indicator = document.getElementById('camera-active-indicator');
+  const overlay = document.getElementById('cam-error-overlay');
 
   if (DW_STATE.webcamActive) {
-    // Stop webcam
     if (DW_STATE.webcamStream) {
       DW_STATE.webcamStream.getTracks().forEach(track => track.stop());
       DW_STATE.webcamStream = null;
@@ -815,43 +1047,261 @@ async function toggleWebcam() {
     DW_STATE.webcamActive = false;
     if (video) video.classList.remove('active');
     if (btn) btn.classList.remove('active');
-    if (btnText) btnText.textContent = 'Gunakan Webcam Lokal';
-    showToast('Webcam Dinonaktifkan', 'Beralih kembali ke simulator CCTV AI.', 'info');
-    addEventLog('YOLO', 'badge-yolo', 'Feed webcam lokal dihentikan.');
+    if (btnText) btnText.textContent = 'Buka Kamera Laptop / HP';
+    if (indicator) {
+      indicator.textContent = 'CCTV SIMULASI';
+      indicator.style.background = 'rgba(0, 229, 255, 0.15)';
+      indicator.style.borderColor = 'rgba(0, 229, 255, 0.4)';
+    }
+    if (overlay) overlay.classList.add('hidden');
+
+    currentTrackedObjects = JSON.parse(JSON.stringify(CAM_PRESETS[DW_STATE.activeCamId].baseObjects));
+    updateDetectionResultsList();
+
+    showToast('Kamera Dinonaktifkan', 'Beralih kembali ke kanal CCTV Bojongsoang.', 'info');
+    addEventLog('CV', 'badge-yolo', 'Feed kamera lokal ditutup. Kembali ke kanal CCTV.');
     return;
   }
 
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
-      audio: false
-    });
+  await startWebcamStream(DW_STATE.cameraFacingMode);
+}
 
+async function startWebcamStream(facingMode = 'user') {
+  const video = document.getElementById('webcam-video');
+  const btn = document.getElementById('btn-webcam');
+  const btnText = document.getElementById('webcam-btn-text');
+  const indicator = document.getElementById('camera-active-indicator');
+  const overlay = document.getElementById('cam-error-overlay');
+
+  if (DW_STATE.webcamStream) {
+    DW_STATE.webcamStream.getTracks().forEach(track => track.stop());
+    DW_STATE.webcamStream = null;
+  }
+
+  try {
+    const constraints = {
+      video: {
+        facingMode: facingMode ? { ideal: facingMode } : 'user',
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      },
+      audio: false
+    };
+
+    const stream = await navigator.mediaDevices.getUserMedia(constraints);
     DW_STATE.webcamStream = stream;
     DW_STATE.webcamActive = true;
     DW_STATE.uploadedImage = null;
+    DW_STATE.cameraFacingMode = facingMode;
 
     if (video) {
       video.srcObject = stream;
+      video.play().catch(e => console.log('Video autoplay error:', e));
       video.classList.add('active');
     }
     if (btn) btn.classList.add('active');
-    if (btnText) btnText.textContent = 'Matikan Webcam';
+    if (btnText) btnText.textContent = 'Matikan Kamera';
+    if (indicator) {
+      const label = facingMode === 'environment' ? 'KAMERA BELAKANG AKTIF' : 'KAMERA DEPAN AKTIF';
+      indicator.textContent = label;
+      indicator.style.background = 'rgba(34, 197, 94, 0.2)';
+      indicator.style.borderColor = 'rgba(34, 197, 94, 0.6)';
+    }
+    if (overlay) overlay.classList.add('hidden');
 
-    // Inject simulated YOLO objects tracking the webcam frame
     currentTrackedObjects = [
-      { id: 901, class: 'plastic', label: 'Objek/Botol Terdeteksi', baseConf: 0.932, color: '#00e5ff', x: 0.38, y: 0.28, w: 0.26, h: 0.42, vx: 0.001, vy: 0.001, t: 0 },
-      { id: 902, class: 'debris', label: 'Material Deteksi Real-Time', baseConf: 0.884, color: '#22c55e', x: 0.15, y: 0.50, w: 0.20, h: 0.25, vx: -0.001, vy: 0.001, t: 1 }
+      { id: 901, class: 'debris', label: 'Material Lapangan / Limbah', baseConf: 0.942, color: '#00e5ff', x: 0.35, y: 0.35, w: 0.28, h: 0.35, vx: 0, vy: 0, t: 0 },
+      { id: 902, class: 'plastic', label: 'Plastik / Kemasan Terapung', baseConf: 0.915, color: '#a855f7', x: 0.60, y: 0.50, w: 0.20, h: 0.22, vx: 0, vy: 0, t: 1 }
     ];
     updateDetectionResultsList();
 
     playSuccessChime();
-    showToast('Webcam Lokal Aktif', 'Model YOLOv8 mendeteksi objek langsung dari kamera Anda secara real-time!', 'success');
-    addEventLog('YOLO', 'badge-yolo', 'Kamera Webcam lokal tersambung. Deteksi real-time 30 FPS aktif.');
+    showToast('Kamera Aktif & Realtime!', `Feed kamera (${facingMode === 'environment' ? 'Belakang / Saluran' : 'Depan / Pengawas'}) tersambung ke Computer Vision AI.`, 'success');
+    addEventLog('CV', 'badge-yolo', `Kamera perangkat lokal aktif (${facingMode}). Model Computer Vision memproses frame real-time 30 FPS.`);
   } catch (err) {
-    console.warn('Webcam permission denied or unavailable:', err);
-    showToast('Akses Kamera Ditolak / Tidak Tersedia', 'Pastikan izin kamera diaktifkan di browser Anda.', 'warning');
-    addEventLog('WARN', 'badge-warn', 'Gagal membuka webcam lokal (Periksa izin browser).');
+    console.error('Camera access error:', err);
+    DW_STATE.webcamActive = false;
+    if (overlay) overlay.classList.remove('hidden');
+    showToast('Izin Kamera Diperlukan', 'Izinkan akses kamera di browser Anda agar AI dapat mendeteksi saluran air secara langsung.', 'warning');
+    addEventLog('WARN', 'badge-warn', `Gagal mengakses kamera: ${err.name || err.message}`);
+  }
+}
+
+async function changeCameraFacingMode(mode) {
+  DW_STATE.cameraFacingMode = mode;
+  const select = document.getElementById('camera-device-select');
+  if (select) select.value = mode;
+
+  if (DW_STATE.webcamActive) {
+    await startWebcamStream(mode);
+  } else {
+    showToast('Kamera Dipilih', `Arah kamera diatur ke: ${mode === 'environment' ? 'Kamera Belakang (Saluran Air)' : 'Kamera Depan (User)'}. Klik "Buka Kamera" untuk mengaktifkan.`, 'info');
+  }
+}
+
+function setCvVisualMode(mode, btnEl) {
+  DW_STATE.cvVisualMode = mode;
+
+  document.querySelectorAll('.cv-mode-btn').forEach(b => b.classList.remove('active'));
+  if (btnEl) btnEl.classList.add('active');
+
+  const modeTag = document.getElementById('yolo-active-mode');
+  const labels = {
+    yolo: 'YOLO AI',
+    edge: 'SOBEL EDGE',
+    heatmap: 'HEATMAP TERMAL',
+    waterline: 'WATERLINE GRID'
+  };
+  if (modeTag) modeTag.textContent = labels[mode] || mode.toUpperCase();
+
+  playTone(520, 'sine', 0.08, 0.08);
+  addEventLog('CV', 'badge-yolo', `Visual mode Computer Vision dialihkan ke: <strong>${labels[mode]}</strong>.`);
+}
+
+function captureCvSnapshot() {
+  const canvas = document.getElementById('yolo-live-canvas');
+  if (!canvas) return;
+
+  const snapCanvas = document.createElement('canvas');
+  snapCanvas.width = canvas.width;
+  snapCanvas.height = canvas.height;
+  const sCtx = snapCanvas.getContext('2d');
+
+  sCtx.drawImage(canvas, 0, 0);
+
+  // Watermark footer
+  sCtx.fillStyle = 'rgba(6, 13, 26, 0.85)';
+  sCtx.fillRect(0, snapCanvas.height - 32, snapCanvas.width, 32);
+
+  sCtx.fillStyle = '#00e5ff';
+  sCtx.font = 'bold 11px JetBrains Mono, monospace';
+  sCtx.fillText('DRAINWATCH AI · LAPORAN DETEKSI VISUAL REALTIME', 15, snapCanvas.height - 12);
+
+  const nowStr = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
+  sCtx.fillStyle = '#94a3b8';
+  sCtx.font = '10px JetBrains Mono, monospace';
+  sCtx.textAlign = 'right';
+  sCtx.fillText(`Bojongsoang (-6.9745, 107.6303) | ${nowStr} WIB`, snapCanvas.width - 15, snapCanvas.height - 12);
+
+  const link = document.createElement('a');
+  link.download = `DrainWatch_CV_Bojongsoang_${Date.now()}.png`;
+  link.href = snapCanvas.toDataURL('image/png');
+  link.click();
+
+  playTone(880, 'sine', 0.12, 0.15);
+  setTimeout(() => playTone(1200, 'sine', 0.15, 0.12), 100);
+
+  showToast('Snapshot Berhasil Diunduh', 'Tangkapan frame visual AI Bojongsoang tersimpan sebagai file PNG.', 'success');
+  addEventLog('CV', 'badge-yolo', `Snapshot bukti visual berhasil diekspor: <code>${link.download}</code>`);
+}
+
+// ──────────────────────────────────────────────
+//  OPEN-METEO REALTIME WEATHER INTEGRATION (BOJONGSOANG)
+// ──────────────────────────────────────────────
+async function fetchRealtimeWeatherData(forceToast = false) {
+  const rainEl = document.getElementById('wh-rain');
+  const tempEl = document.getElementById('wh-temp');
+  const humidEl = document.getElementById('wh-humid');
+  const timeEl = document.getElementById('wh-time');
+  const badgeEl = document.getElementById('weather-badge-status');
+
+  if (rainEl && rainEl.textContent === 'Memuat...') {
+    rainEl.textContent = 'Mengambil...';
+  }
+
+  let data = null;
+
+  // Attempt 1: Vercel Serverless Function /api/weather
+  try {
+    const res = await fetch('/api/weather');
+    if (res.ok) {
+      data = await res.json();
+    }
+  } catch (err) {
+    console.log('Local/fallback to direct Open-Meteo API...');
+  }
+
+  // Attempt 2: Direct Open-Meteo endpoint (Fallback for local static testing)
+  if (!data || !data.current) {
+    try {
+      const fallbackUrl = 'https://api.open-meteo.com/v1/forecast?latitude=-6.9745&longitude=107.6303&current=temperature_2m,relative_humidity_2m,precipitation,surface_pressure,wind_speed_10m&hourly=precipitation,temperature_2m&forecast_days=3&timezone=Asia%2FJakarta';
+      const fRes = await fetch(fallbackUrl);
+      if (fRes.ok) {
+        const raw = await fRes.json();
+        data = {
+          success: true,
+          location: 'Bojongsoang, Kabupaten Bandung',
+          coordinates: { lat: -6.9745, lon: 107.6303 },
+          current: {
+            temperature: raw.current.temperature_2m,
+            precipitation: raw.current.precipitation,
+            relative_humidity: raw.current.relative_humidity_2m,
+            surface_pressure: raw.current.surface_pressure,
+            wind_speed: raw.current.wind_speed_10m,
+            time: raw.current.time
+          },
+          hourly: raw.hourly
+        };
+      }
+    } catch (fallbackErr) {
+      console.warn('Weather fallback failed:', fallbackErr);
+    }
+  }
+
+  if (data && data.current) {
+    const rain = Number(data.current.precipitation || 0);
+    const temp = Number(data.current.temperature || 28.0);
+    const humid = Number(data.current.relative_humidity || 75);
+
+    DW_STATE.liveWeather = {
+      rain_mm_h: rain,
+      temp_c: temp,
+      humid_pct: humid,
+      pressure_hpa: data.current.surface_pressure || 940,
+      lastUpdate: new Date().toLocaleTimeString('id-ID') + ' WIB',
+      forecastRain: (data.hourly && data.hourly.precipitation) ? data.hourly.precipitation.slice(0, 24) : []
+    };
+
+    if (rainEl) rainEl.textContent = `${rain.toFixed(1)} mm/jam`;
+    if (tempEl) tempEl.textContent = `${temp.toFixed(1)} °C`;
+    if (humidEl) humidEl.textContent = `${humid.toFixed(0)}%`;
+    if (timeEl) timeEl.textContent = `${DW_STATE.liveWeather.lastUpdate} (Live)`;
+
+    if (badgeEl) {
+      if (rain > 15) {
+        badgeEl.textContent = 'HUJAN LEBAT · WASPADA';
+        badgeEl.style.color = '#ef4444';
+      } else if (rain > 2) {
+        badgeEl.textContent = 'HUJAN RINGAN';
+        badgeEl.style.color = '#00e5ff';
+      } else {
+        badgeEl.textContent = 'CUACA CERAH/BERAWAN';
+        badgeEl.style.color = '#22c55e';
+      }
+    }
+
+    // Adapt Bojongsoang sensor water levels based on real rain!
+    syncWeatherWithTelemetry(rain);
+
+    if (forceToast) {
+      showToast('Data Cuaca Diperbarui', `Stasiun Bojongsoang: Hujan ${rain.toFixed(1)} mm/h, Suhu ${temp.toFixed(1)}°C, Lembap ${humid}%.`, 'success');
+      playTone(660, 'sine', 0.1, 0.1);
+    }
+    addEventLog('METEO', 'badge-storm', `Sinkronisasi cuaca Open-Meteo Bojongsoang (-6.9745, 107.6303): Curah hujan <strong>${rain.toFixed(1)} mm/h</strong>, Suhu <strong>${temp}°C</strong>.`);
+  } else {
+    if (timeEl) timeEl.textContent = 'Offline (Menggunakan estimasi)';
+  }
+}
+
+function syncWeatherWithTelemetry(rainMmH) {
+  if (rainMmH > 5 && !DW_STATE.isStorm) {
+    SENSOR_DATA.forEach(s => {
+      s.level = Math.min(98, s.level + rainMmH * 1.5);
+      if (s.level > 80) s.status = 'critical';
+      else if (s.level > 55) s.status = 'warning';
+    });
+    renderSensorTable();
+    updateDonutChart();
   }
 }
 

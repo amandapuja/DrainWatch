@@ -1,0 +1,13 @@
+backend/
+cv_engine/
+iot_firmware/
+frontend/
+*.bat
+docker-compose.yml
+mosquitto.conf
+simulator_iot.py
+*.pt
+*.onnx
+.git
+.vscode/
+.idea/

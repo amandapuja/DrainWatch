@@ -1,0 +1,27 @@
+{
+  "name": "drainwatch",
+  "version": "2.5.0",
+  "type": "module",
+  "description": "Sistem Pemantauan Drainase Cerdas Berbasis Computer Vision, IoT, dan Pemodelan Prediktif - Area Bojongsoang dan Bandung Raya",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve ."
+  },
+  "keywords": [
+    "drainwatch",
+    "bojongsoang",
+    "bandung",
+    "computer-vision",
+    "yolo",
+    "iot",
+    "smart-city",
+    "flood-mitigation",
+    "vercel"
+  ],
+  "author": "DrainWatch Resilience Team",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.2.4"
+  }
+}

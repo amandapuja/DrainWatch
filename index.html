@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DrainWatch — Sistem Pemantauan Drainase Cerdas</title>
-  <meta name="description" content="DrainWatch: Inovasi sistem pemantauan drainase cerdas berbasis Computer Vision YOLO, IoT, dan pemodelan prediktif untuk deteksi penyumbatan serta mitigasi risiko genangan dalam mendukung ketahanan infrastruktur perkotaan berkelanjutan." />
-  <meta name="keywords" content="DrainWatch, drainase cerdas, computer vision, YOLO, IoT, smart city, flood detection, penyumbatan, genangan" />
-  <meta property="og:title" content="DrainWatch — Sistem Pemantauan Drainase Cerdas" />
-  <meta property="og:description" content="Teknologi YOLO + IoT untuk deteksi penyumbatan drainase dan mitigasi banjir real-time" />
+  <title>DrainWatch — Sistem Pemantauan Drainase Cerdas Bojongsoang & Bandung Raya</title>
+  <meta name="description" content="DrainWatch: Sistem pemantauan drainase cerdas real-time berbasis Computer Vision YOLO, IoT telemetri, dan pemodelan prediktif untuk wilayah Bojongsoang, Dayeuhkolot, Baleendah, dan Bandung sekitarnya." />
+  <meta name="keywords" content="DrainWatch, Bojongsoang, Dayeuhkolot, Baleendah, Citarum, Bandung, drainase cerdas, computer vision, YOLOv8, webcam, IoT, smart city, flood detection, genangan, real-time" />
+  <meta property="og:title" content="DrainWatch — Pemantauan Drainase Real-Time Bojongsoang & Bandung" />
+  <meta property="og:description" content="Teknologi YOLOv8 Computer Vision + IoT Sensor Real-Time untuk mitigasi banjir di area Bojongsoang dan Bandung sekitarnya" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
@@ -38,7 +38,7 @@
       </div>
       <div class="loader-text">DRAINWATCH</div>
       <div class="loader-bar"><div class="loader-fill"></div></div>
-      <div class="loader-status">Initializing AI Engine...</div>
+      <div class="loader-status">Inisialisasi AI & Sinkronisasi Telemetri Bojongsoang...</div>
     </div>
   </div>
 
@@ -85,23 +85,23 @@
     <!-- Alert Panel -->
     <div class="alert-panel" id="alert-panel">
       <div class="alert-panel-header">
-        <h3>Notifikasi Aktif</h3>
+        <h3>Notifikasi Aktif &middot; Bandung Raya</h3>
         <button onclick="document.getElementById('alert-panel').classList.remove('open')">X</button>
       </div>
       <div class="alert-item critical">
         <span class="alert-badge">KRITIS</span>
-        <p>Titik D-07: Penyumbatan 89% terdeteksi — Jl. Gatot Subroto</p>
+        <p>Titik D-01: Penyumbatan 89% terdeteksi — Jembatan Citarum Bojongsoang KM 2.5</p>
         <small>2 menit lalu</small>
       </div>
       <div class="alert-item warning">
         <span class="alert-badge">PERINGATAN</span>
-        <p>Sensor S-12 mendeteksi level air meningkat 15 cm/jam</p>
-        <small>8 menit lalu</small>
+        <p>Sensor S-02 (Sukabirus Telkom Univ): Level air meningkat 15 cm/jam</p>
+        <small>7 menit lalu</small>
       </div>
       <div class="alert-item info">
         <span class="alert-badge">INFO</span>
-        <p>Prediksi genangan zona B dalam 45 menit — probabilitas 74%</p>
-        <small>12 menit lalu</small>
+        <p>Prediksi genangan Polder Cieunteung Baleendah dalam 35 menit — probabilitas 78%</p>
+        <small>11 menit lalu</small>
       </div>
     </div>
   </nav>
@@ -115,17 +115,16 @@
     <div class="hero-content">
       <div class="hero-badge">
         <span class="pulse-dot"></span>
-        SISTEM AKTIF &middot; 47 SENSOR ONLINE
+        SISTEM REAL-TIME AKTIF &middot; AREA BOJONGSOANG &amp; BANDUNG RAYA
       </div>
       <h1 class="hero-title">
         <span class="title-drain">DRAIN</span><span class="title-watch">WATCH</span>
       </h1>
-      <p class="hero-subtitle">Inovasi Pemantauan Drainase Cerdas</p>
+      <p class="hero-subtitle">Pemantauan Drainase Cerdas Bojongsoang &amp; DAS Citarum</p>
       <p class="hero-desc">
-        Deteksi penyumbatan real-time berbasis <strong>Computer Vision YOLO</strong>, 
-        jaringan <strong>IoT Sensor</strong> terintegrasi, dan 
-        <strong>Pemodelan Prediktif</strong> untuk mitigasi risiko genangan 
-        demi infrastruktur perkotaan yang berkelanjutan.
+        Deteksi penyumbatan real-time berbasis <strong>Computer Vision YOLOv8 (Akses Kamera Langsung)</strong>, 
+        jaringan telemetri <strong>IoT Sensor</strong>, integrasi <strong>Data Cuaca &amp; Curah Hujan Real-Time</strong>, 
+        serta <strong>Pemodelan Prediktif Genangan</strong> untuk ketahanan infrastruktur kawasan Bojongsoang, Dayeuhkolot, Baleendah, dan Bandung sekitarnya.
       </p>
       <div class="hero-stats">
         <div class="stat-chip">
@@ -159,7 +158,7 @@
     <div class="hero-visual">
       <div class="drain-monitor-card">
         <div class="monitor-header">
-          <span class="monitor-title">Live Feed — Kamera #03</span>
+          <span class="monitor-title">Live Feed — CAM-01 · Jembatan Citarum Bojongsoang</span>
           <span class="live-badge">LIVE</span>
         </div>
         <div class="monitor-screen" id="monitor-screen">
@@ -212,15 +211,15 @@
               </line>
               <text x="90" y="56" font-size="7" fill="#00e5ff" font-family="monospace">YOLOv8n x 30fps x 640x480</text>
               <text x="200" y="56" font-size="7" fill="#f59e0b" font-family="monospace">BLOCKAGE DETECTED</text>
-              <text x="90" y="232" font-size="7" fill="#64748b" font-family="monospace">CAM-03 x Jl. Gatot Subroto KM.4</text>
-              <text x="270" y="232" font-size="7" fill="#64748b" font-family="monospace">12:54:32</text>
+              <text x="90" y="232" font-size="7" fill="#64748b" font-family="monospace">CAM-01 x Jembatan Citarum Bojongsoang KM 2.5</text>
+              <text x="270" y="232" font-size="7" fill="#64748b" font-family="monospace">LIVE WIB</text>
             </svg>
           </div>
         </div>
         <div class="monitor-footer">
           <div class="mf-stat danger" id="hero-mf-stat"><span>&#9679;</span> <span id="hero-blockage-txt">Penyumbatan: 89%</span></div>
           <div class="mf-stat ok"><span>&#9679;</span> AI: Online (30 FPS)</div>
-          <div class="mf-stat warning"><span>&#9679;</span> Risiko: Tinggi</div>
+          <div class="mf-stat warning"><span>&#9679;</span> Risiko: Kritis (Citarum)</div>
         </div>
       </div>
     </div>
@@ -234,8 +233,43 @@
   <section id="dashboard" class="section dashboard-section">
     <div class="section-header">
       <div class="section-tag">MONITORING CENTER</div>
-      <h2>Dashboard <span class="gradient-text">Real-Time</span></h2>
-      <p>Pantau seluruh jaringan drainase kota secara terpusat dengan data langsung dari 47 titik sensor aktif</p>
+      <h2>Dashboard <span class="gradient-text">Real-Time</span> Bojongsoang &amp; Bandung Raya</h2>
+      <p>Pantau seluruh jaringan drainase DAS Citarum Hilir, Bojongsoang, Dayeuhkolot, Baleendah, dan Bandung sekitarnya secara terpusat dengan data telemetri real-time.</p>
+    </div>
+
+    <!-- ── REALTIME BOJONGSOANG WEATHER HUD (OPEN-METEO) ── -->
+    <div class="weather-hud-card" id="weather-hud">
+      <div class="weather-hud-left">
+        <div class="weather-badge-live">
+          <span class="pulse-green"></span>
+          <span id="weather-status-label">OPEN-METEO LIVE REALTIME</span>
+        </div>
+        <div class="weather-location-tag">
+          <span>📍</span>
+          <span>Bojongsoang &amp; DAS Citarum, Kab. Bandung <small style="color:var(--text-muted);font-family:var(--font-mono)">[-6.9745, 107.6303]</small></span>
+        </div>
+      </div>
+      <div class="weather-hud-stats">
+        <div class="wh-stat">
+          <span class="wh-label">Curah Hujan Realtime</span>
+          <span class="wh-val" id="wh-rain">Memuat...</span>
+        </div>
+        <div class="wh-stat">
+          <span class="wh-label">Suhu Udara</span>
+          <span class="wh-val" id="wh-temp">Memuat...</span>
+        </div>
+        <div class="wh-stat">
+          <span class="wh-label">Kelembapan</span>
+          <span class="wh-val" id="wh-humid">Memuat...</span>
+        </div>
+        <div class="wh-stat">
+          <span class="wh-label">Update Terakhir</span>
+          <span class="wh-val" id="wh-time" style="color:var(--text-secondary);font-size:12px">Sedang Sinkronisasi...</span>
+        </div>
+        <button class="weather-refresh-btn" onclick="fetchRealtimeWeatherData(true)" title="Sinkronkan data realtime dari stasiun meteorologi Bojongsoang">
+          <span>🔄</span> Sinkronkan
+        </button>
+      </div>
     </div>
 
     <!-- ── REAL-TIME SIMULATION CONTROL BAR ── -->
@@ -243,7 +277,7 @@
       <div class="sim-status-group">
         <div class="sim-live-indicator">
           <span class="radar-ping"></span>
-          <span>LIVE STREAM TELEMETRY</span>
+          <span>LIVE TELEMETRY STREAM</span>
         </div>
         <div class="sim-clock-display" id="realtime-clock">--:--:-- WIB</div>
       </div>
@@ -283,7 +317,7 @@
           <div class="ov-num" id="ov1">47</div>
           <div class="ov-label">Sensor Aktif</div>
         </div>
-        <div class="ov-change up">+2 hari ini</div>
+        <div class="ov-change up">Bojongsoang &amp; Bandung</div>
       </div>
       <div class="overview-card glow-red">
         <div class="ov-icon red">
@@ -293,7 +327,7 @@
           <div class="ov-num danger-text" id="ov2">3</div>
           <div class="ov-label">Penyumbatan Kritis</div>
         </div>
-        <div class="ov-change">Perlu penanganan</div>
+        <div class="ov-change">Citarum &amp; Dayeuhkolot</div>
       </div>
       <div class="overview-card glow-yellow">
         <div class="ov-icon yellow">
@@ -303,7 +337,7 @@
           <div class="ov-num warning-text" id="ov3">74%</div>
           <div class="ov-label">Prob. Genangan</div>
         </div>
-        <div class="ov-change">Zona B — 45 menit</div>
+        <div class="ov-change">Zona B (Baleendah) — 35 mnt</div>
       </div>
       <div class="overview-card glow-green">
         <div class="ov-icon green">
@@ -407,27 +441,27 @@
 
     <div class="detection-grid">
       <div class="camera-feeds">
-        <h3 class="feeds-title">Live Camera Feeds</h3>
+        <h3 class="feeds-title">Kanal CCTV Bojongsoang &amp; Bandung</h3>
         <div class="feeds-grid">
           <div class="feed-card active" id="feed-1" onclick="selectFeed(1)">
             <div class="feed-screen"><div class="feed-visual cam1"></div></div>
             <div class="feed-info"><span>CAM-01</span><span class="feed-status critical">Kritis</span></div>
-            <small>Jl. Sudirman KM.2</small>
+            <small>Jembatan Citarum Bojongsoang KM 2.5</small>
           </div>
           <div class="feed-card" id="feed-2" onclick="selectFeed(2)">
             <div class="feed-screen"><div class="feed-visual cam2"></div></div>
             <div class="feed-info"><span>CAM-02</span><span class="feed-status warning">Waspada</span></div>
-            <small>Jl. MH Thamrin</small>
+            <small>Drainase Sukabirus - Telkom Univ</small>
           </div>
           <div class="feed-card" id="feed-3" onclick="selectFeed(3)">
             <div class="feed-screen"><div class="feed-visual cam3"></div></div>
             <div class="feed-info"><span>CAM-03</span><span class="feed-status critical">Kritis</span></div>
-            <small>Jl. Gatot Subroto</small>
+            <small>Polder Retensi Cieunteung Baleendah</small>
           </div>
           <div class="feed-card" id="feed-4" onclick="selectFeed(4)">
             <div class="feed-screen"><div class="feed-visual cam4"></div></div>
             <div class="feed-info"><span>CAM-04</span><span class="feed-status ok">Normal</span></div>
-            <small>Jl. Kuningan Raya</small>
+            <small>Pintu Air Dayeuhkolot (Cikapundung)</small>
           </div>
         </div>
       </div>
@@ -435,35 +469,63 @@
       <div class="detection-main">
         <div class="detection-screen">
           <div class="detection-feed-header">
-            <span id="active-cam-label">CAM-01 x Jl. Sudirman KM.2</span>
+            <span id="active-cam-label">CAM-01 x Jembatan Citarum Bojongsoang KM 2.5</span>
             <div class="detection-controls">
-              <span class="live-badge pulse">LIVE</span>
+              <span class="camera-active-tag" id="camera-active-indicator">CCTV SIMULASI</span>
+              <span class="live-badge pulse">LIVE INFERENCE</span>
             </div>
           </div>
           <div class="yolo-feed-wrapper" id="yolo-feed-wrapper">
             <video id="webcam-video" autoplay playsinline muted></video>
             <canvas id="yolo-live-canvas"></canvas>
             
+            <!-- Camera Help/Permission Overlay -->
+            <div id="cam-error-overlay" class="cam-error-overlay hidden">
+              <div class="cam-error-icon">📷</div>
+              <div class="cam-error-title">Akses Kamera Diperlukan</div>
+              <div class="cam-error-desc">Klik tombol "Izinkan" pada pop-up izin browser Anda untuk menghubungkan kamera perangkat langsung ke model inferensi Computer Vision DrainWatch.</div>
+              <button class="btn-primary" onclick="toggleWebcam()">Minta Ulang Izin Kamera</button>
+            </div>
+
             <div class="yolo-hud-overlay">
               <div class="hud-telemetry">
                 <span><span class="hud-tag">FPS:</span> <span class="hud-val" id="yolo-fps">30.1</span></span>
                 <span><span class="hud-tag">LATENCY:</span> <span class="hud-val" id="yolo-latency">15.4ms</span></span>
                 <span><span class="hud-tag">OBJEK:</span> <span class="hud-val" id="yolo-obj-count">4</span></span>
+                <span><span class="hud-tag">MODE:</span> <span class="hud-val" id="yolo-active-mode" style="color:var(--cyan)">YOLO AI</span></span>
               </div>
               <div class="hud-status-badge" id="hud-cam-status">BLOCKAGE DETECTED</div>
             </div>
           </div>
 
-          <!-- ── ADVANCED YOLO TOOLBAR ── -->
+          <!-- ── ADVANCED YOLO TOOLBAR & CAMERA INTEGRATION ── -->
           <div class="yolo-advanced-toolbar">
             <div class="yolo-tools-left">
-              <button class="yolo-tool-btn" id="btn-webcam" onclick="toggleWebcam()">
-                <span>📷</span> <span id="webcam-btn-text">Gunakan Webcam Lokal</span>
+              <button class="yolo-tool-btn" id="btn-webcam" onclick="toggleWebcam()" title="Hubungkan webcam laptop atau kamera HP ke AI detector">
+                <span>📷</span> <span id="webcam-btn-text">Buka Kamera Laptop / HP</span>
               </button>
-              <label class="yolo-tool-btn" style="cursor:pointer">
+
+              <select class="camera-select-box" id="camera-device-select" onchange="changeCameraFacingMode(this.value)" title="Pilih kamera">
+                <option value="user">📸 Kamera Depan (User)</option>
+                <option value="environment">📹 Kamera Belakang (Saluran Air)</option>
+              </select>
+
+              <button class="yolo-tool-btn" onclick="captureCvSnapshot()" title="Simpan tangkapan layar hasil deteksi AI">
+                <span>📸</span> <span>Snapshot AI</span>
+              </button>
+
+              <label class="yolo-tool-btn" style="cursor:pointer" title="Uji deteksi pada file foto atau video Anda">
                 <span>📁</span> <span>Upload Media</span>
                 <input type="file" id="media-upload-input" accept="image/*,video/*" style="display:none" onchange="handleMediaUpload(event)">
               </label>
+
+              <div class="cv-modes-group">
+                <button class="cv-mode-btn active" data-mode="yolo" onclick="setCvVisualMode('yolo', this)">YOLO AI</button>
+                <button class="cv-mode-btn" data-mode="edge" onclick="setCvVisualMode('edge', this)">Sobel Edge</button>
+                <button class="cv-mode-btn" data-mode="heatmap" onclick="setCvVisualMode('heatmap', this)">Heatmap</button>
+                <button class="cv-mode-btn" data-mode="waterline" onclick="setCvVisualMode('waterline', this)">Waterline Grid</button>
+              </div>
+
               <div class="confidence-slider-group">
                 <span>Conf Min:</span>
                 <input type="range" id="conf-slider" min="30" max="95" value="65" oninput="updateConfThreshold(this.value)">
@@ -590,43 +652,43 @@
               <animate attributeName="r" values="20;35;20" dur="2s" repeatCount="indefinite"/>
               <animate attributeName="opacity" values="0.2;0;0.2" dur="2s" repeatCount="indefinite"/>
             </circle>
-            <text x="250" y="186" text-anchor="middle" font-size="8" fill="white" font-family="monospace">CENTRAL</text>
-            <text x="250" y="197" text-anchor="middle" font-size="8" fill="white" font-family="monospace">HUB</text>
+            <text x="250" y="186" text-anchor="middle" font-size="8" fill="white" font-family="monospace">TELKOM</text>
+            <text x="250" y="197" text-anchor="middle" font-size="8" fill="white" font-family="monospace">HUB BOJONGSOANG</text>
             <circle cx="80" cy="80" r="18" fill="#1a0a0a" stroke="#ef4444" stroke-width="2"/>
             <circle cx="80" cy="80" r="12" fill="#ef444420"><animate attributeName="r" values="12;20;12" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0;0.5" dur="1.5s" repeatCount="indefinite"/></circle>
             <text x="80" y="77" text-anchor="middle" font-size="7" fill="#ef4444" font-family="monospace">S-01</text>
             <text x="80" y="86" text-anchor="middle" font-size="6" fill="#ef4444" font-family="monospace">KRITIS</text>
-            <text x="80" y="107" text-anchor="middle" font-size="8" fill="#94a3b8">Sudirman</text>
+            <text x="80" y="107" text-anchor="middle" font-size="8" fill="#94a3b8">Citarum Bojongsoang</text>
             <circle cx="420" cy="80" r="18" fill="#1a140a" stroke="#f59e0b" stroke-width="2"/>
             <circle cx="420" cy="80" r="12" fill="#f59e0b20"><animate attributeName="r" values="12;20;12" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.4;0;0.4" dur="2s" repeatCount="indefinite"/></circle>
             <text x="420" y="77" text-anchor="middle" font-size="7" fill="#f59e0b" font-family="monospace">S-02</text>
             <text x="420" y="86" text-anchor="middle" font-size="6" fill="#f59e0b" font-family="monospace">WASPADA</text>
-            <text x="420" y="107" text-anchor="middle" font-size="8" fill="#94a3b8">Thamrin</text>
+            <text x="420" y="107" text-anchor="middle" font-size="8" fill="#94a3b8">Sukabirus Telkom</text>
             <circle cx="150" cy="190" r="18" fill="#0a1a0a" stroke="#22c55e" stroke-width="2"/>
             <text x="150" y="187" text-anchor="middle" font-size="7" fill="#22c55e" font-family="monospace">S-03</text>
             <text x="150" y="196" text-anchor="middle" font-size="6" fill="#22c55e" font-family="monospace">NORMAL</text>
-            <text x="150" y="217" text-anchor="middle" font-size="8" fill="#94a3b8">Kuningan</text>
+            <text x="150" y="217" text-anchor="middle" font-size="8" fill="#94a3b8">Cieunteung Baleendah</text>
             <circle cx="350" cy="190" r="18" fill="#0a1a0a" stroke="#22c55e" stroke-width="2"/>
             <text x="350" y="187" text-anchor="middle" font-size="7" fill="#22c55e" font-family="monospace">S-04</text>
             <text x="350" y="196" text-anchor="middle" font-size="6" fill="#22c55e" font-family="monospace">NORMAL</text>
-            <text x="350" y="217" text-anchor="middle" font-size="8" fill="#94a3b8">Rasuna</text>
+            <text x="350" y="217" text-anchor="middle" font-size="8" fill="#94a3b8">Dayeuhkolot</text>
             <circle cx="80" cy="300" r="18" fill="#1a0a0a" stroke="#ef4444" stroke-width="2"/>
             <circle cx="80" cy="300" r="12" fill="#ef444420"><animate attributeName="r" values="12;20;12" dur="1.3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0;0.5" dur="1.3s" repeatCount="indefinite"/></circle>
             <text x="80" y="297" text-anchor="middle" font-size="7" fill="#ef4444" font-family="monospace">S-07</text>
             <text x="80" y="306" text-anchor="middle" font-size="6" fill="#ef4444" font-family="monospace">KRITIS</text>
-            <text x="80" y="327" text-anchor="middle" font-size="8" fill="#94a3b8">Gatot Sub.</text>
+            <text x="80" y="327" text-anchor="middle" font-size="8" fill="#94a3b8">Pintu Air Andir</text>
             <circle cx="420" cy="300" r="18" fill="#0a1a0a" stroke="#22c55e" stroke-width="2"/>
             <text x="420" y="297" text-anchor="middle" font-size="7" fill="#22c55e" font-family="monospace">S-12</text>
             <text x="420" y="306" text-anchor="middle" font-size="6" fill="#22c55e" font-family="monospace">NORMAL</text>
-            <text x="420" y="327" text-anchor="middle" font-size="8" fill="#94a3b8">Casablanca</text>
+            <text x="420" y="327" text-anchor="middle" font-size="8" fill="#94a3b8">Citepus Buahbatu</text>
             <circle cx="250" cy="80" r="18" fill="#0a1a0a" stroke="#22c55e" stroke-width="2"/>
             <text x="250" y="77" text-anchor="middle" font-size="7" fill="#22c55e" font-family="monospace">S-09</text>
             <text x="250" y="86" text-anchor="middle" font-size="6" fill="#22c55e" font-family="monospace">NORMAL</text>
-            <text x="250" y="107" text-anchor="middle" font-size="8" fill="#94a3b8">Semanggi</text>
+            <text x="250" y="107" text-anchor="middle" font-size="8" fill="#94a3b8">Sapan Tegalluar</text>
             <circle cx="250" cy="300" r="18" fill="#1a140a" stroke="#f59e0b" stroke-width="2"/>
             <text x="250" y="297" text-anchor="middle" font-size="7" fill="#f59e0b" font-family="monospace">S-14</text>
             <text x="250" y="306" text-anchor="middle" font-size="6" fill="#f59e0b" font-family="monospace">WASPADA</text>
-            <text x="250" y="327" text-anchor="middle" font-size="8" fill="#94a3b8">Pancoran</text>
+            <text x="250" y="327" text-anchor="middle" font-size="8" fill="#94a3b8">Tanggul Cisirung</text>
             <defs>
               <radialGradient id="hubGrad" cx="50%" cy="50%">
                 <stop offset="0%" stop-color="#00e5ff" stop-opacity="0.4"/>
@@ -639,8 +701,8 @@
 
       <div class="sensor-details">
         <div class="sensor-active-banner">
-          <span>📡 Sensor Terpilih: <strong id="active-sensor-name" style="color:var(--cyan)">S-01 · Jl. Sudirman KM.2</strong></span>
-          <span style="font-size:11px;color:var(--text-muted)" id="active-sensor-last-pkt">Paket LoRaWAN: Baru saja</span>
+          <span>📡 Sensor Terpilih: <strong id="active-sensor-name" style="color:var(--cyan)">S-01 · Jembatan Citarum Bojongsoang</strong></span>
+          <span style="font-size:11px;color:var(--text-muted)" id="active-sensor-last-pkt">Paket LoRaWAN: Real-Time</span>
         </div>
         <div class="sensor-detail-card" id="card-temp"><div class="sd-icon">🌡️</div><div class="sd-content"><div class="sd-title">Suhu Air</div><div class="sd-value" id="val-temp">28.4°C</div><div class="sd-gauge"><div class="sd-fill" id="gauge-temp" style="width:57%"></div></div><div class="sd-sub">Normal: 20-35°C</div></div></div>
         <div class="sensor-detail-card" id="card-ph"><div class="sd-icon">💧</div><div class="sd-content"><div class="sd-title">pH Air</div><div class="sd-value" id="val-ph">6.8</div><div class="sd-gauge"><div class="sd-fill" id="gauge-ph" style="width:68%;background:linear-gradient(to right,#22c55e,#86efac)"></div></div><div class="sd-sub">Normal: 6.5-8.5</div></div></div>
@@ -678,30 +740,30 @@
       </div>
 
       <div class="risk-cards">
-        <h3>Tingkat Risiko per Zona</h3>
+        <h3>Tingkat Risiko per Zona Bandung Raya</h3>
         <div class="risk-card r-critical">
-          <div class="risk-zone">Zona A — Sudirman</div>
+          <div class="risk-zone">Zona A — DAS Citarum Bojongsoang &amp; Dayeuhkolot</div>
           <div class="risk-level">KRITIS</div>
           <div class="risk-prob"><div class="risk-bar"><div class="risk-fill" style="width:89%"></div></div><span>89%</span></div>
-          <div class="risk-time">Est. banjir: ~20 mnt</div>
+          <div class="risk-time">Est. luapan: ~20 mnt</div>
         </div>
         <div class="risk-card r-high">
-          <div class="risk-zone">Zona B — Kuningan</div>
+          <div class="risk-zone">Zona B — Cekungan Cieunteung &amp; Andir Baleendah</div>
           <div class="risk-level high">TINGGI</div>
           <div class="risk-prob"><div class="risk-bar"><div class="risk-fill" style="width:74%;background:linear-gradient(to right,#f59e0b,#fbbf24)"></div></div><span>74%</span></div>
-          <div class="risk-time">Est. banjir: ~45 mnt</div>
+          <div class="risk-time">Est. luapan: ~35 mnt</div>
         </div>
         <div class="risk-card r-medium">
-          <div class="risk-zone">Zona C — Thamrin</div>
+          <div class="risk-zone">Zona C — Kawasan Sukabirus &amp; Buahbatu</div>
           <div class="risk-level medium">SEDANG</div>
           <div class="risk-prob"><div class="risk-bar"><div class="risk-fill" style="width:42%;background:linear-gradient(to right,#eab308,#facc15)"></div></div><span>42%</span></div>
-          <div class="risk-time">Est. banjir: ~2 jam</div>
+          <div class="risk-time">Est. luapan: ~2 jam</div>
         </div>
         <div class="risk-card r-low">
-          <div class="risk-zone">Zona D — Casablanca</div>
+          <div class="risk-zone">Zona D — Kolam Retensi Gedebage &amp; Sapan</div>
           <div class="risk-level low">RENDAH</div>
           <div class="risk-prob"><div class="risk-bar"><div class="risk-fill" style="width:18%;background:linear-gradient(to right,#22c55e,#4ade80)"></div></div><span>18%</span></div>
-          <div class="risk-time">Tidak berisiko</div>
+          <div class="risk-time">Aliran Terkendali</div>
         </div>
       </div>
 
@@ -763,112 +825,145 @@
             </defs>
             <rect width="700" height="500" fill="#060d1a"/>
             <rect width="700" height="500" fill="url(#mapGrid)"/>
-            <g stroke="#1e3a5f" stroke-width="8" stroke-linecap="round">
-              <line x1="0" y1="200" x2="700" y2="200"/>
-              <line x1="0" y1="350" x2="700" y2="350"/>
-              <line x1="200" y1="0" x2="200" y2="500"/>
-              <line x1="450" y1="0" x2="450" y2="500"/>
-              <line x1="0" y1="120" x2="700" y2="120"/>
-              <line x1="320" y1="0" x2="320" y2="500"/>
+
+            <!-- Citarum River Path (Meandering Blue River) -->
+            <path d="M 0 240 Q 180 210 260 260 T 450 210 T 700 250" fill="none" stroke="#0284c7" stroke-width="14" stroke-linecap="round" opacity="0.6"/>
+            <path d="M 0 240 Q 180 210 260 260 T 450 210 T 700 250" fill="none" stroke="#00e5ff" stroke-width="4" stroke-linecap="round" opacity="0.8">
+              <animate attributeName="stroke-dashoffset" values="100;0" dur="4s" repeatCount="indefinite"/>
+            </path>
+            
+            <!-- Road Networks in Bojongsoang & Bandung Selatan -->
+            <g stroke="#1e3a5f" stroke-width="7" stroke-linecap="round">
+              <!-- Jl. Terusan Buahbatu ke Bojongsoang (Utara-Selatan) -->
+              <line x1="260" y1="0" x2="260" y2="500"/>
+              <!-- Jl. Raya Bojongsoang (Barat Laut ke Tenggara) -->
+              <line x1="120" y1="120" x2="600" y2="400"/>
+              <!-- Jl. Dayeuhkolot - Banjaran (Barat ke Timur) -->
+              <line x1="0" y1="310" x2="700" y2="310"/>
+              <!-- Akses Telkom Univ Sukabirus -->
+              <line x1="260" y1="150" x2="480" y2="150"/>
+              <!-- Akses Gedebage / Tol Padaleunyi -->
+              <line x1="0" y1="90" x2="700" y2="90"/>
             </g>
-            <g font-size="9" fill="#2d4a7a" font-family="sans-serif" text-anchor="middle">
-              <text x="350" y="195">Jl. Sudirman</text>
-              <text x="350" y="345">Jl. Gatot Subroto</text>
-              <text x="350" y="115">Jl. MH Thamrin</text>
+
+            <g font-size="9" fill="#38bdf8" font-family="sans-serif" text-anchor="middle" font-weight="600">
+              <text x="520" y="235">Sungai Citarum (DAS Hilir)</text>
+              <text x="210" y="45" fill="#94a3b8">Tol Padaleunyi / Buahbatu</text>
+              <text x="370" y="142" fill="#a78bfa">Kawasan Telkom University</text>
+              <text x="440" y="380" fill="#94a3b8">Jl. Raya Bojongsoang</text>
+              <text x="140" y="302" fill="#f87171">Dayeuhkolot</text>
+              <text x="580" y="302" fill="#fbbf24">Baleendah</text>
             </g>
-            <rect x="0" y="0" width="340" height="280" fill="url(#zoneA)"/>
-            <rect x="280" y="150" width="300" height="280" fill="url(#zoneB)"/>
-            <rect x="380" y="0" width="320" height="250" fill="url(#zoneC)"/>
-            <rect x="500" y="300" width="200" height="200" fill="url(#zoneD)"/>
+
+            <!-- Risk Gradient Zones -->
+            <rect x="0" y="160" width="340" height="260" fill="url(#zoneA)"/>
+            <rect x="280" y="200" width="320" height="250" fill="url(#zoneB)"/>
+            <rect x="200" y="40" width="300" height="200" fill="url(#zoneC)"/>
+            <rect x="480" y="30" width="220" height="200" fill="url(#zoneD)"/>
+
+            <!-- Sensor Markers -->
+            <!-- S-01 Jembatan Citarum Bojongsoang -->
             <g class="map-marker" onclick="openMapSensorModal('S-01')">
-              <circle cx="150" cy="170" r="10" fill="#ef4444" stroke="white" stroke-width="2"><animate attributeName="r" values="10;16;10" dur="1.5s" repeatCount="indefinite"/></circle>
-              <text x="150" y="174" text-anchor="middle" font-size="8" fill="white" font-weight="bold">S-01</text>
+              <circle cx="260" cy="255" r="11" fill="#ef4444" stroke="white" stroke-width="2"><animate attributeName="r" values="10;17;10" dur="1.4s" repeatCount="indefinite"/></circle>
+              <text x="260" y="259" text-anchor="middle" font-size="8" fill="white" font-weight="bold">S-01</text>
             </g>
+            <!-- S-07 Kolam Retensi Andir Baleendah -->
             <g class="map-marker" onclick="openMapSensorModal('S-07')">
-              <circle cx="150" cy="330" r="10" fill="#ef4444" stroke="white" stroke-width="2"><animate attributeName="r" values="10;16;10" dur="1.3s" repeatCount="indefinite"/></circle>
-              <text x="150" y="334" text-anchor="middle" font-size="8" fill="white" font-weight="bold">S-07</text>
+              <circle cx="560" cy="310" r="11" fill="#ef4444" stroke="white" stroke-width="2"><animate attributeName="r" values="10;16;10" dur="1.3s" repeatCount="indefinite"/></circle>
+              <text x="560" y="314" text-anchor="middle" font-size="8" fill="white" font-weight="bold">S-07</text>
             </g>
+            <!-- S-02 Sukabirus Telkom -->
             <g class="map-marker" onclick="openMapSensorModal('S-02')">
-              <circle cx="400" cy="100" r="9" fill="#f59e0b" stroke="white" stroke-width="2"/>
-              <text x="400" y="104" text-anchor="middle" font-size="8" fill="white" font-weight="bold">S-02</text>
+              <circle cx="360" cy="150" r="9" fill="#f59e0b" stroke="white" stroke-width="2"/>
+              <text x="360" y="154" text-anchor="middle" font-size="8" fill="white" font-weight="bold">S-02</text>
             </g>
-            <g class="map-marker" onclick="openMapSensorModal('S-14')">
-              <circle cx="320" cy="280" r="9" fill="#f59e0b" stroke="white" stroke-width="2"/>
-              <text x="320" y="284" text-anchor="middle" font-size="8" fill="white" font-weight="bold">S-14</text>
+            <!-- S-10 Bunderan Bojongsoang -->
+            <g class="map-marker" onclick="openMapSensorModal('S-10')">
+              <circle cx="260" cy="340" r="9" fill="#f59e0b" stroke="white" stroke-width="2"/>
+              <text x="260" y="344" text-anchor="middle" font-size="8" fill="white" font-weight="bold">S-10</text>
             </g>
+            <!-- S-03 Polder Cieunteung Baleendah -->
             <g class="map-marker" onclick="openMapSensorModal('S-03')">
-              <circle cx="200" cy="200" r="8" fill="#22c55e" stroke="white" stroke-width="1.5"/>
-              <text x="200" y="204" text-anchor="middle" font-size="7" fill="white">S-03</text>
+              <circle cx="480" cy="290" r="8" fill="#22c55e" stroke="white" stroke-width="1.5"/>
+              <text x="480" y="294" text-anchor="middle" font-size="7" fill="white">S-03</text>
             </g>
+            <!-- S-04 Pintu Air Dayeuhkolot -->
             <g class="map-marker" onclick="openMapSensorModal('S-04')">
-              <circle cx="450" cy="200" r="8" fill="#22c55e" stroke="white" stroke-width="1.5"/>
-              <text x="450" y="204" text-anchor="middle" font-size="7" fill="white">S-04</text>
+              <circle cx="120" cy="270" r="8" fill="#22c55e" stroke="white" stroke-width="1.5"/>
+              <text x="120" y="274" text-anchor="middle" font-size="7" fill="white">S-04</text>
             </g>
-            <g class="map-marker" onclick="openMapSensorModal('S-09')">
-              <circle cx="320" cy="120" r="8" fill="#22c55e" stroke="white" stroke-width="1.5"/>
-              <text x="320" y="124" text-anchor="middle" font-size="7" fill="white">S-09</text>
+            <!-- S-06 Kolam Retensi Gedebage -->
+            <g class="map-marker" onclick="openMapSensorModal('S-06')">
+              <circle cx="580" cy="100" r="8" fill="#22c55e" stroke="white" stroke-width="1.5"/>
+              <text x="580" y="104" text-anchor="middle" font-size="7" fill="white">S-06</text>
             </g>
+            <!-- S-12 Citepus Buahbatu -->
             <g class="map-marker" onclick="openMapSensorModal('S-12')">
-              <circle cx="580" cy="380" r="8" fill="#22c55e" stroke="white" stroke-width="1.5"/>
-              <text x="580" y="384" text-anchor="middle" font-size="7" fill="white">S-12</text>
+              <circle cx="170" cy="110" r="8" fill="#22c55e" stroke="white" stroke-width="1.5"/>
+              <text x="170" y="114" text-anchor="middle" font-size="7" fill="white">S-12</text>
             </g>
-            <rect x="10" y="420" width="200" height="72" rx="6" fill="#0a0f1a" stroke="#1e3a5f" stroke-width="1"/>
-            <text x="20" y="436" font-size="9" fill="#94a3b8" font-weight="bold">LEGENDA</text>
-            <circle cx="25" cy="448" r="5" fill="#ef4444"/><text x="35" y="452" font-size="8" fill="#cbd5e1">Sensor Kritis</text>
-            <circle cx="25" cy="462" r="5" fill="#f59e0b"/><text x="35" y="466" font-size="8" fill="#cbd5e1">Sensor Waspada</text>
-            <circle cx="25" cy="476" r="5" fill="#22c55e"/><text x="35" y="480" font-size="8" fill="#cbd5e1">Sensor Normal</text>
-            <g transform="translate(655, 30)">
+
+            <!-- Legend Box -->
+            <rect x="10" y="415" width="230" height="78" rx="6" fill="#0a0f1a" stroke="#1e3a5f" stroke-width="1"/>
+            <text x="20" y="432" font-size="9" fill="#94a3b8" font-weight="bold">LEGENDA SPASIAL BANDUNG</text>
+            <circle cx="25" cy="446" r="5" fill="#ef4444"/><text x="35" y="450" font-size="8" fill="#cbd5e1">Sensor Kritis (Citarum / Andir)</text>
+            <circle cx="25" cy="460" r="5" fill="#f59e0b"/><text x="35" y="464" font-size="8" fill="#cbd5e1">Sensor Waspada (Sukabirus / Bunderan)</text>
+            <circle cx="25" cy="474" r="5" fill="#22c55e"/><text x="35" y="478" font-size="8" fill="#cbd5e1">Sensor Normal (Dayeuhkolot / Gedebage)</text>
+
+            <!-- Compass -->
+            <g transform="translate(655, 35)">
               <circle cx="0" cy="0" r="20" fill="#0a0f1a" stroke="#1e3a5f" stroke-width="1"/>
-              <text x="0" y="-8" text-anchor="middle" font-size="8" fill="#00e5ff" font-weight="bold">N</text>
+              <text x="0" y="-8" text-anchor="middle" font-size="8" fill="#00e5ff" font-weight="bold">U</text>
               <text x="0" y="14" text-anchor="middle" font-size="7" fill="#475569">S</text>
-              <text x="-12" y="4" text-anchor="middle" font-size="7" fill="#475569">W</text>
-              <text x="12" y="4" text-anchor="middle" font-size="7" fill="#475569">E</text>
+              <text x="-12" y="4" text-anchor="middle" font-size="7" fill="#475569">B</text>
+              <text x="12" y="4" text-anchor="middle" font-size="7" fill="#475569">T</text>
               <line x1="0" y1="-5" x2="0" y2="-15" stroke="#00e5ff" stroke-width="2"/>
             </g>
           </svg>
         </div>
       </div>
       <div class="map-stats-panel">
-        <h3>Statistik Zona</h3>
+        <h3>Statistik Zona Bandung</h3>
         <div class="zone-stats">
           <div class="zone-stat-item critical-zone">
             <div class="zone-dot"></div>
             <div class="zone-info">
-              <div class="zone-name">Zona A (Sudirman)</div>
+              <div class="zone-name">Zona A (DAS Citarum Bojongsoang)</div>
               <div class="zone-risk-bar"><div style="width:89%;background:#ef4444"></div></div>
-              <div class="zone-details">Risiko: 89% · Luas: 2.3 km2</div>
+              <div class="zone-details">Risiko: 89% · Luas: 4.2 km²</div>
             </div>
           </div>
           <div class="zone-stat-item warning-zone">
             <div class="zone-dot yellow-dot"></div>
             <div class="zone-info">
-              <div class="zone-name">Zona B (Kuningan)</div>
+              <div class="zone-name">Zona B (Cieunteung &amp; Andir Baleendah)</div>
               <div class="zone-risk-bar"><div style="width:74%;background:#f59e0b"></div></div>
-              <div class="zone-details">Risiko: 74% · Luas: 1.8 km2</div>
+              <div class="zone-details">Risiko: 74% · Luas: 3.5 km²</div>
             </div>
           </div>
           <div class="zone-stat-item medium-zone">
             <div class="zone-dot orange-dot"></div>
             <div class="zone-info">
-              <div class="zone-name">Zona C (Thamrin)</div>
+              <div class="zone-name">Zona C (Sukabirus Telkom &amp; Buahbatu)</div>
               <div class="zone-risk-bar"><div style="width:42%;background:#eab308"></div></div>
-              <div class="zone-details">Risiko: 42% · Luas: 3.1 km2</div>
+              <div class="zone-details">Risiko: 42% · Luas: 5.1 km²</div>
             </div>
           </div>
           <div class="zone-stat-item ok-zone">
             <div class="zone-dot green-dot"></div>
             <div class="zone-info">
-              <div class="zone-name">Zona D (Casablanca)</div>
+              <div class="zone-name">Zona D (Gedebage &amp; Tegalluar)</div>
               <div class="zone-risk-bar"><div style="width:18%;background:#22c55e"></div></div>
-              <div class="zone-details">Risiko: 18% · Luas: 2.7 km2</div>
+              <div class="zone-details">Risiko: 18% · Luas: 6.8 km²</div>
             </div>
           </div>
         </div>
         <div class="emergency-contacts">
-          <h4>Kontak Darurat</h4>
-          <div class="ec-item"><span>BPBD Jakarta</span><span class="ec-num">021-3851-111</span></div>
-          <div class="ec-item"><span>Dinas SDA DKI</span><span class="ec-num">1500-277</span></div>
-          <div class="ec-item"><span>Posko Banjir</span><span class="ec-num">119 ext.27</span></div>
+          <h4>Kontak Siaga Bencana Bandung</h4>
+          <div class="ec-item"><span>BPBD Kab. Bandung</span><span class="ec-num">(022) 8587-2525</span></div>
+          <div class="ec-item"><span>BBWS Citarum</span><span class="ec-num">(022) 7562-040</span></div>
+          <div class="ec-item"><span>Posko Dayeuhkolot</span><span class="ec-num">(022) 589-1119</span></div>
+          <div class="ec-item"><span>Call Center Darurat</span><span class="ec-num">112</span></div>
         </div>
       </div>
     </div>
@@ -996,7 +1091,7 @@
         <button class="modal-close-btn" onclick="closeMapModal()">&times;</button>
       </div>
       <div class="modal-body">
-        <p style="font-size:14px;color:var(--text-secondary);margin-bottom:14px" id="modal-sensor-loc">Jl. Sudirman KM.2 (Zona A)</p>
+        <p style="font-size:14px;color:var(--text-secondary);margin-bottom:14px" id="modal-sensor-loc">Jembatan Citarum Bojongsoang KM 2.5 (Zona A)</p>
         <div class="modal-telemetry-grid">
           <div class="modal-stat-box">
             <div class="modal-stat-label">Level Air Saat Ini</div>

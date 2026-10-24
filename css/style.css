@@ -1788,3 +1788,195 @@ canvas { display: block; }
 .toast-msg { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
 .toast-time { font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 4px; }
 
+/* ── REALTIME WEATHER & BOJONGSOANG HUD ── */
+.weather-hud-card {
+  background: linear-gradient(135deg, rgba(6, 13, 26, 0.95), rgba(13, 22, 38, 0.95));
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: var(--radius);
+  padding: 14px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(0, 229, 255, 0.05);
+}
+.weather-hud-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.weather-badge-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: #86efac;
+  padding: 5px 12px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.pulse-green {
+  width: 8px;
+  height: 8px;
+  background: #22c55e;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #22c55e;
+  animation: pulseDot 1.5s infinite;
+}
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+.weather-location-tag {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.weather-hud-stats {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.wh-stat {
+  display: flex;
+  flex-direction: column;
+}
+.wh-label {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.wh-val {
+  font-size: 14px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--cyan);
+}
+.weather-refresh-btn {
+  background: rgba(0, 229, 255, 0.1);
+  border: 1px solid var(--border-light);
+  color: var(--cyan);
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+.weather-refresh-btn:hover {
+  background: rgba(0, 229, 255, 0.2);
+  border-color: var(--cyan);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.25);
+}
+
+/* ── CAMERA SELECTION & CV ENHANCEMENTS ── */
+.camera-select-box {
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  max-width: 190px;
+}
+.camera-select-box:focus {
+  border-color: var(--cyan);
+}
+.cv-modes-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(2, 8, 20, 0.6);
+  padding: 3px 6px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.cv-mode-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.cv-mode-btn:hover {
+  color: var(--text-primary);
+}
+.cv-mode-btn.active {
+  background: var(--cyan);
+  color: #000;
+  font-weight: 700;
+}
+.camera-active-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #f87171;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.camera-active-tag.online {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.5);
+  color: #86efac;
+}
+.cam-error-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 13, 26, 0.94);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  z-index: 10;
+}
+.cam-error-overlay.hidden {
+  display: none;
+}
+.cam-error-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+.cam-error-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+}
+.cam-error-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  max-width: 420px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+

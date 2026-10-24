@@ -12,10 +12,10 @@ import requests
 BACKEND_URL = "http://127.0.0.1:8000/api/v1/sensors/telemetry"
 
 SENSORS = [
-    {"id": "S-01", "name": "Jl. Sudirman KM.2", "base_level": 70.0, "noise": 15.0},
-    {"id": "S-02", "name": "Jl. MH Thamrin", "base_level": 45.0, "noise": 8.0},
-    {"id": "S-07", "name": "Jl. Gatot Subroto", "base_level": 60.0, "noise": 22.0},
-    {"id": "S-13", "name": "Jl. Gatot Sub. KM.6", "base_level": 75.0, "noise": 10.0},
+    {"id": "S-01", "name": "Jembatan Citarum Bojongsoang KM 2.5", "base_level": 70.0, "noise": 15.0},
+    {"id": "S-02", "name": "Drainase Sukabirus Telkom Univ", "base_level": 45.0, "noise": 8.0},
+    {"id": "S-07", "name": "Pintu Air Kolam Retensi Andir Baleendah", "base_level": 60.0, "noise": 22.0},
+    {"id": "S-13", "name": "Saluran Pembuang Cijagra Bojongsoang", "base_level": 75.0, "noise": 10.0},
 ]
 
 def main():
